@@ -1,0 +1,13 @@
+part_input_file       two_updown.in
+time_end              100.0
+timestep_length       0.0016
+x_min                 0
+y_min                 0
+z_min                 0
+x_max                 1
+y_max                 1
+z_max                 1
+x_n                   100
+y_n                   100
+z_n                   100
+restdensity           998200.0

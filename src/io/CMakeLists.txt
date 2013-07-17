@@ -1,0 +1,6 @@
+set(SOURCE
+	${SOURCE}
+	${CMAKE_CURRENT_SOURCE_DIR}/ConfigReader.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/PartReader.cpp
+	PARENT_SCOPE
+)
