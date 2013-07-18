@@ -9,6 +9,9 @@
 
 #if defined(__APPLE__)
 #include <OpenGL/OpenGL.h>
+#include <mach-o/dyld.h>
+#include <limits.h>
+#include <libgen.h>
 #elif defined(UNIX)
 #include <GL/glx.h>
 #else
@@ -39,88 +42,28 @@ using std::string;
 using std::exception;
 using std::runtime_error;
 
-
-// Function to create system with drop
-void createSystem(const string &filename)
-{
-    ofstream ofs( filename.c_str() );
-
-    if ( !ofs )
-    {
-        throw runtime_error("Error opening output file for creating a system");
-    }
-
-    const hesp_float radius = 0.04f;
-    unsigned int count = 0;
-
-    for (hesp_float y = 0.20f; y <= 0.30f; y += 0.01f)
-    {
-        for (hesp_float z = 0.20f; z <= 0.40f; z += 0.01f)
-        {
-            for (hesp_float x = 0.10f; x <= 0.50f; x += 0.01f)
-            {
-                ++count;
-            }
-        }
-    }
-
-    for (hesp_float y = -0.05f; y <= 0.05f; y += 0.01f)
-    {
-        for (hesp_float z = -0.05f; z <= 0.05f; z += 0.01f)
-        {
-            for (hesp_float x = -0.05f; x <= 0.05f; x += 0.01f)
-            {
-                if (sqrt(x * x + y * y + z * z) < radius)
-                {
-                    ++count;
-                }
-            }
-        }
-    }
-
-    ofs << count << endl;
-
-    for (hesp_float y = 0.20f; y <= 0.30f; y += 0.01f)
-    {
-        for (hesp_float z = 0.20f; z <= 0.40f; z += 0.01f)
-        {
-            for (hesp_float x = 0.10f; x <= 0.50f; x += 0.01f)
-            {
-                ofs << 1.0f << " " << x << " " << y << " " << z
-                    << " " << 0.0f << " " << 0.0f << " " << 0.0f << endl;
-            }
-        }
-    }
-
-    for (hesp_float y = -0.05f; y <= 0.05f; y += 0.01f)
-    {
-        for (hesp_float z = -0.05f; z <= 0.05f; z += 0.01f)
-        {
-            for (hesp_float x = -0.05f; x <= 0.05f; x += 0.01f)
-            {
-                if (sqrt(x * x + y * y + z * z) < radius)
-                {
-                    ofs << 1.0f << " " << x + 0.325f << " "
-                        << y + 0.95f << " " << z + 0.325f
-                        << " " << 0.0f << " " << 0.0f << " " << 0.0f << endl;
-                }
-            }
-        }
-    }
-}
-
-
 int main(int argc, char *argv[])
 {
     try
     {
+        char path[PATH_MAX + 1];
+        uint32_t size = sizeof(path);
+        if (_NSGetExecutablePath(path, &size) == 0)
+        {
+            char absolute_path[PATH_MAX + 1];
+            realpath(path, absolute_path);
+            printf("executable path is %s\n", dirname(absolute_path));
+        }
+        else
+        {
+            //TODO: Throw error
+        }
+
         if ( (argc != 2) )
         {
             cerr << "usage: hesp <simulation_parameters_file>" << endl;
             exit(-1);
         }
-
-        //createSystem("drop.in");
 
         // Reading the configuration file
         string parameters_filename = argv[1];
@@ -280,10 +223,14 @@ int main(int argc, char *argv[])
         Runner runner;
         runner.run(parameters, simulation, renderer);
 
-    } catch (const cl::Error &ecl) {
+    }
+    catch (const cl::Error &ecl)
+    {
         cerr << "OpenCL Error caught: " << ecl.what() << "(" << ecl.err() << ")" << endl;
         exit(-1);
-    } catch (const exception &e) {
+    }
+    catch (const exception &e)
+    {
         cerr << "STD Error caught: " << e.what() << endl;
         exit(-1);
     }
