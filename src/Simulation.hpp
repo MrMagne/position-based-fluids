@@ -14,18 +14,10 @@
 #include "Parameters.hpp"
 #include "Particle.hpp"
 
-#if defined(GLFW3)
 #include <GLFW/glfw3.h>
-#else
-#define GLFW_INCLUDE_GL3
-#define GL_DO_NOT_WARN_IF_MULTI_GL_VERSION_HEADERS_INCLUDED
-#include <GL/glfw.h>
-#endif // GLFW3
-
 
 // Macro used for the end of cell list
 static const int END_OF_CELL_LIST = -1;
-
 
 using std::map;
 using std::vector;

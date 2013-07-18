@@ -28,9 +28,7 @@ CVisual::CVisual (const int width,
     : mWidth(width),
       mHeight(height),
       mProgramID(0),
-#if defined(GLFW3)
       mWindow(NULL),
-#endif // GLFW3
       mSystemBufferID(0),
       mPositionAttrib(0),
       mNumParticles(0),
@@ -67,8 +65,6 @@ CVisual::initWindow(const string windowname)
         throw runtime_error("Could not initialize GLFW!");
     }
 
-#if defined(GLFW3)
-    // We want OpenGL 3.2
     glfwWindowHint(GLFW_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_VERSION_MINOR, 2);
 
@@ -85,24 +81,6 @@ CVisual::initWindow(const string windowname)
     // Make the window's context current
     glfwMakeContextCurrent(mWindow);
     glfwSetInputMode(mWindow, GLFW_STICKY_KEYS, GL_TRUE);
-
-#else
-    // We want OpenGL 3.2
-    glfwOpenWindowHint(GLFW_VERSION_MAJOR, 3);
-    glfwOpenWindowHint(GLFW_VERSION_MINOR, 2);
-
-    if ( !glfwOpenWindow(mWidth, mHeight, 32, 32, 32, 32, 32, 0, GLFW_WINDOW) )
-    {
-        throw runtime_error("Could not open GLFW Window!");
-        glfwTerminate();
-    }
-
-    glfwSetWindowTitle( windowname.c_str() );
-    glfwEnable(GLFW_STICKY_KEYS); // Enable escape key
-
-    // glEnable(GL_CULL_FACE);
-    // glEnable(GL_POINT_SMOOTH);
-#endif // GLFW3
 
     glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
     glEnable(GL_POINT_SPRITE);
@@ -420,12 +398,7 @@ CVisual::visualizeParticles(const hesp_float4 *positions,
 
     glUseProgram(0);
 
-#if defined(GLFW3)
     glfwSwapBuffers(mWindow);
-#else
-    glfwSwapBuffers();
-#endif // GLFW3
-
 }
 
 #if defined(USE_CGL_SHARING)
@@ -491,12 +464,7 @@ CVisual::visualizeParticles(void)
 
     glUseProgram(0);
 
-#if defined(GLFW3)
     glfwSwapBuffers(mWindow);
-#else
-    glfwSwapBuffers();
-#endif // GLFW3
-
 }
 #endif // USE_CGL_SHARING
 
@@ -504,7 +472,6 @@ void
 CVisual::checkInput(bool &generateWaves)
 {
 
-#if defined(GLFW3)
     glfwPollEvents();
 
     if (glfwGetKey(mWindow, GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -578,80 +545,6 @@ CVisual::checkInput(bool &generateWaves)
     {
         generateWaves = !generateWaves;
     }
-#else
-    if (glfwGetKey(GLFW_KEY_ESC) == GLFW_PRESS)
-    {
-        glFinish();
-        glfwTerminate();
-        exit(-1);
-    }
-
-    if (glfwGetKey('W') == GLFW_PRESS)
-    {
-        mCamTarget.z -= 0.01f;
-    }
-
-    if (glfwGetKey('S') == GLFW_PRESS)
-    {
-        mCamTarget.z += 0.01f;
-    }
-
-    if (glfwGetKey('Q') == GLFW_PRESS)
-    {
-        mCamTarget.y -= 0.01f;
-    }
-
-    if (glfwGetKey('E') == GLFW_PRESS)
-    {
-        mCamTarget.y += 0.01f;
-    }
-
-    if (glfwGetKey('D') == GLFW_PRESS)
-    {
-        mCamTarget.x -= 0.01f;
-    }
-
-    if (glfwGetKey('A') == GLFW_PRESS)
-    {
-        mCamTarget.x += 0.01f;
-    }
-
-    if (glfwGetKey('O') == GLFW_PRESS)
-    {
-        mCamSphere.z -= 0.01f;
-    }
-
-    if (glfwGetKey('U') == GLFW_PRESS)
-    {
-        mCamSphere.z += 0.01f;
-    }
-
-    if (glfwGetKey('I') == GLFW_PRESS)
-    {
-        mCamSphere.y -= 1.0f;
-    }
-
-    if (glfwGetKey('K') == GLFW_PRESS)
-    {
-        mCamSphere.y += 1.0f;
-    }
-
-    if (glfwGetKey('J') == GLFW_PRESS)
-    {
-        mCamSphere.x -= 1.0f;
-    }
-
-    if (glfwGetKey('L') == GLFW_PRESS)
-    {
-        mCamSphere.x += 1.0f;
-    }
-
-    if (glfwGetKey('G') == GLFW_PRESS)
-    {
-        generateWaves = !generateWaves;
-    }
-#endif // GLFW3
-
 }
 
 /**

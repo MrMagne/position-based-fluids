@@ -3,14 +3,7 @@
 
 #define GL_GLEXT_PROTOTYPES // Necessary for vertex buffer
 
-
-#if defined(GLFW3)
 #include <GLFW/glfw3.h>
-#else
-#define GLFW_INCLUDE_GL3
-#define GL_DO_NOT_WARN_IF_MULTI_GL_VERSION_HEADERS_INCLUDED
-#include <GL/glfw.h>
-#endif // GLFW3
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -105,9 +98,7 @@ private:
     GLuint mProgramID; /**< Program ID for OpenGL shaders */
     GLuint mParticleProgramID;
 
-#if defined(GLFW3)
     GLFWwindow *mWindow;
-#endif // GLFW3
 
     // System sizes
     GLfloat mSizeXmin;

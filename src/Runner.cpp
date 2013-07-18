@@ -7,12 +7,7 @@
 #include <unistd.h>
 #endif // MAKE_VIDEO
 
-#if defined(GLFW3)
 #include <GLFW/glfw3.h>
-#else
-#include <GL/glfw.h>
-#endif // GLFW3
-
 
 using std::string;
 using std::ostringstream;
@@ -132,7 +127,7 @@ void Runner::run(const ConfigParameters &parameters,
         simulation.dumpData(positions, velocities);
         renderer.visualizeParticles(positions, velocities);
 #endif // USE_CGL_SHARING
-        
+
         renderer.checkInput(shouldGenerateWaves);
 
         // end = glfwGetTime();

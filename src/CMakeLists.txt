@@ -4,7 +4,7 @@ include_directories(
 	${CMAKE_SOURCE_DIR}/lib/soil/src/
 )
 
-add_definitions(-DGLFW3 -DUSE_LINKEDCELL -DUSE_CGL_SHARING)
+add_definitions(-DUSE_LINKEDCELL -DUSE_CGL_SHARING)
 
 set(SOURCE
 	main.cpp
