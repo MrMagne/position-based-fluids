@@ -8,10 +8,7 @@
 #include <cmath>
 #include <vector>
 
-#if defined(USE_SOIL)
 #include "SOIL.h"
-#endif // USE_SOIL
-
 
 using std::runtime_error;
 using std::ifstream;
@@ -191,7 +188,6 @@ CVisual::initSystemVisual(const hesp_float4 sizesMin,
         0.0f, 1.0f, 0.0f, 0.0f,
     };
 
-#if defined(USE_SOIL)
     glGenTextures(1, &mWallTexture);
     glBindTexture(GL_TEXTURE_2D, mWallTexture);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -215,7 +211,6 @@ CVisual::initSystemVisual(const hesp_float4 sizesMin,
     SOIL_free_image_data(image);
 
     glBindTexture(GL_TEXTURE_2D, 0);
-#endif // USE_SOIL
 
     glGenBuffers(1, &mSystemBufferID);
     glBindBuffer(GL_ARRAY_BUFFER, mSystemBufferID);
@@ -364,7 +359,6 @@ CVisual::visualizeParticles(const hesp_float4 *positions,
     // Texture stuff do not optimize for now
     // 1. only write uniform once
     // 2. use variable offset instead of hardcoded 0
-#if defined(USE_SOIL)
     glUniform1i(mTextureUnif, 0);
     glActiveTexture(GL_TEXTURE0 + 0);
     glBindTexture(GL_TEXTURE_2D, mWallTexture);
@@ -383,17 +377,6 @@ CVisual::visualizeParticles(const hesp_float4 *positions,
     glDisableVertexAttribArray(mPositionAttrib);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindTexture(GL_TEXTURE_2D, 0);
-#else
-    glBindBuffer(GL_ARRAY_BUFFER, mSystemBufferID);
-    glEnableVertexAttribArray(mPositionAttrib);
-    glEnableVertexAttribArray(mNormalAttrib);
-    glVertexAttribPointer(mPositionAttrib, 4, GL_FLOAT, GL_FALSE,
-                          8 * sizeof(GLfloat), 0);
-    glVertexAttribPointer( mNormalAttrib, 4, GL_FLOAT, GL_FALSE,
-                           8 * sizeof(GLfloat), (void *) ( 4 * sizeof(GLfloat) ) );
-
-    glDrawArrays(GL_QUADS, 0, 8);
-#endif // USE_SOIL
 
     glUseProgram(0);
 
@@ -414,8 +397,8 @@ CVisual::visualizeParticles(const hesp_float4 *positions,
         mParticles[4 * i + 1] = positions[i].s[1];
         mParticles[4 * i + 2] = positions[i].s[2];
         mParticles[4 * i + 3] = sqrt( velocities[i].s[0] * velocities[i].s[0]
-                + velocities[i].s[1] * velocities[i].s[1] 
-                + velocities[i].s[2] * velocities[i].s[2] );
+                                      + velocities[i].s[1] * velocities[i].s[1]
+                                      + velocities[i].s[2] * velocities[i].s[2] );
 
 #if defined(USE_DEBUG)
         if (isnan(positions[i].s[0])
@@ -468,7 +451,6 @@ CVisual::visualizeParticles(void)
     // Texture stuff do not optimize for now
     // 1. only write uniform once
     // 2. use variable offset instead of hardcoded 0
-#if defined(USE_SOIL)
     glUniform1i(mTextureUnif, 0);
     glActiveTexture(GL_TEXTURE0 + 0);
     glBindTexture(GL_TEXTURE_2D, mWallTexture);
@@ -487,17 +469,6 @@ CVisual::visualizeParticles(void)
     glDisableVertexAttribArray(mPositionAttrib);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindTexture(GL_TEXTURE_2D, 0);
-#else
-    glBindBuffer(GL_ARRAY_BUFFER, mSystemBufferID);
-    glEnableVertexAttribArray(mPositionAttrib);
-    glEnableVertexAttribArray(mNormalAttrib);
-    glVertexAttribPointer(mPositionAttrib, 4, GL_FLOAT, GL_FALSE,
-                          8 * sizeof(GLfloat), 0);
-    glVertexAttribPointer( mNormalAttrib, 4, GL_FLOAT, GL_FALSE,
-                           8 * sizeof(GLfloat), (void *) ( 4 * sizeof(GLfloat) ) );
-
-    glDrawArrays(GL_QUADS, 0, 8);
-#endif // USE_SOIL
 
     glUseProgram(0);
 
