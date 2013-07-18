@@ -18,10 +18,21 @@ add_subdirectory(ocl)
 
 add_executable(hesp ${SOURCE})
 
-target_link_libraries(hesp
-	glfw
-	soil
-	${OPENGL_LIBRARY}
-	${OPENCL_LIBRARY}
-	${X11_LIBRARY}
-)
+if (APPLE)
+  target_link_libraries(hesp
+  	glfw
+  	soil
+  	${OPENGL_LIBRARY}
+  	${OPENCL_LIBRARY}
+    ${COREFOUNDATION_LIBRARY}
+    ${COCOA_LIB}
+    ${IOKIT_LIB}
+  )
+else()
+  target_link_libraries(hesp
+    glfw
+    soil
+    ${OPENGL_LIBRARY}
+    ${OPENCL_LIBRARY}
+  )
+endif (APPLE)
