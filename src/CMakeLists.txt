@@ -1,5 +1,6 @@
 include_directories(
 	${CMAKE_SOURCE_DIR}/lib
+  ${CMAKE_SOURCE_DIR}/lib/glm
 	${CMAKE_SOURCE_DIR}/lib/glfw/include
 	${CMAKE_SOURCE_DIR}/lib/soil/src/
 )
