@@ -20,10 +20,11 @@ set(HEADER
   Simulation.hpp
 )
 
-
 add_subdirectory(io)
 add_subdirectory(visual)
 add_subdirectory(ocl)
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 # also headers are not necessary for cmake, 
 # include them here so they appear in IDE like Xcode
@@ -47,3 +48,16 @@ else()
     ${OPENCL_LIBRARY}
   )
 endif (APPLE)
+
+add_custom_command(TARGET hesp POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${HESP_SOURCE_DIR}/assets/scenarios"
+        $<TARGET_FILE_DIR:hesp>/assets/scenarios)
+
+add_custom_command(TARGET hesp POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${HESP_SOURCE_DIR}/assets/textures"
+        $<TARGET_FILE_DIR:hesp>/assets/textures)
+
+#file(COPY ../assets/scenarios DESTINATION $<TARGET_FILE_DIR:hesp>/assets)
+#file(COPY ../assets/textures DESTINATION $<TARGET_FILE_DIR:hesp>/assets)
