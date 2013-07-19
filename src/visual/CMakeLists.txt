@@ -3,3 +3,9 @@ set(SOURCE
 	${CMAKE_CURRENT_SOURCE_DIR}/visual.cpp
 	PARENT_SCOPE
 )
+
+set(HEADER
+  ${HEADER}
+  ${CMAKE_CURRENT_SOURCE_DIR}/visual.hpp
+  PARENT_SCOPE
+)

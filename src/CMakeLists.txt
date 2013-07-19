@@ -12,11 +12,21 @@ set(SOURCE
 	Simulation.cpp
 )
 
+set(HEADER
+  hesp.hpp
+  Particle.hpp
+  Runner.hpp
+  Simulation.hpp
+)
+
+
 add_subdirectory(io)
 add_subdirectory(visual)
 add_subdirectory(ocl)
 
-add_executable(hesp ${SOURCE})
+# also headers are not necessary for cmake, 
+# include them here so they appear in IDE like Xcode
+add_executable(hesp ${SOURCE} ${HEADER})
 
 if (APPLE)
   target_link_libraries(hesp
