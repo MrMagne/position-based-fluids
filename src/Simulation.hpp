@@ -157,12 +157,7 @@ private:
 
     // The host memory holding the simulation data
     cl_float4 *mPositions;
-    cl_float4 *mPredicted;
     cl_float4 *mVelocities;
-    cl_float4 *mDelta;
-    cl_float4 *mDeltaVelocity;
-    cl_float *mScalingFactors;
-    cl_float4 *mVorticityForces;
 #if !defined(USE_LINKEDCELL)
     cl_uint2 *mRadixCells;
 #endif // USE_LINKEDCELL

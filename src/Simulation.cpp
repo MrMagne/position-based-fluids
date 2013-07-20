@@ -98,10 +98,6 @@ Simulation::~Simulation ()
     delete[] mCells;
     delete[] mPositions;
     delete[] mVelocities;
-    delete[] mScalingFactors;
-    delete[] mDeltaVelocity;
-    delete[] mParticlesList;
-    delete[] mVorticityForces;
 #if !defined(USE_LINKEDCELL)
     delete[] mRadixCells;
 #endif // USE_LINKEDCELL
@@ -119,12 +115,7 @@ Simulation::init(void)
 
     // setup buffers
     mPositions = new cl_float4[mNumParticles];
-    mPredicted = new cl_float4[mNumParticles];
     mVelocities = new cl_float4[mNumParticles];
-    mScalingFactors = new cl_float[mNumParticles];
-    mDelta = new cl_float4[mNumParticles];
-    mDeltaVelocity = new cl_float4[mNumParticles];
-    mVorticityForces = new cl_float4[mNumParticles];
 #if !defined(USE_LINKEDCELL)
     mRadixCells = new cl_uint2[_NKEYS];
 #endif // USE_LINKEDCELL
@@ -140,33 +131,11 @@ Simulation::init(void)
         // to save space we use the 4th component for the mass and timestep term
         mPositions[i].s[3] = 0.0f;
 
-        mPredicted[i].s[0] = 0.0f;
-        mPredicted[i].s[1] = 0.0f;
-        mPredicted[i].s[2] = 0.0f;
-        mPredicted[i].s[3] = 0.0f;
-
         mVelocities[i].s[0] = p.v[0];
         mVelocities[i].s[1] = p.v[1];
         mVelocities[i].s[2] = p.v[2];
         // to save space we use the 4th component for the timestep
         mVelocities[i].s[3] = p.m;
-
-        mScalingFactors[i] = 0.0f;
-
-        mDelta[i].s[0] = 0.0f;
-        mDelta[i].s[1] = 0.0f;
-        mDelta[i].s[2] = 0.0f;
-        mDelta[i].s[3] = 0.0f;
-
-        mDeltaVelocity[i].s[0] = 0.0f;
-        mDeltaVelocity[i].s[1] = 0.0f;
-        mDeltaVelocity[i].s[2] = 0.0f;
-        mDeltaVelocity[i].s[3] = 0.0f;
-
-        mVorticityForces[i].s[0] = 0.0f;
-        mVorticityForces[i].s[1] = 0.0f;
-        mVorticityForces[i].s[2] = 0.0f;
-        mVorticityForces[i].s[3] = 0.0f;
     }
 
     mQueue = cl::CommandQueue(mCLContext, mCLDevice);
@@ -196,8 +165,6 @@ Simulation::init(void)
 
     mPredictedBuffer = cl::Buffer(mCLContext,
                                   CL_MEM_READ_WRITE, mBufferSizeParticles);
-    mQueue.enqueueWriteBuffer(mPredictedBuffer, CL_TRUE,
-                              0, mBufferSizeParticles, mPredicted);
 
     mVelocitiesBuffer = cl::Buffer(mCLContext,
                                    CL_MEM_READ_WRITE, mBufferSizeParticles);
@@ -206,23 +173,14 @@ Simulation::init(void)
 
     mDeltaBuffer = cl::Buffer(mCLContext,
                               CL_MEM_READ_WRITE, mBufferSizeParticles);
-    mQueue.enqueueWriteBuffer(mDeltaBuffer, CL_TRUE,
-                              0, mBufferSizeParticles, mDelta);
-
     mDeltaVelocityBuffer = cl::Buffer(mCLContext,
                                       CL_MEM_READ_WRITE, mBufferSizeParticles);
-    mQueue.enqueueWriteBuffer(mDeltaVelocityBuffer, CL_TRUE,
-                              0, mBufferSizeParticles, mDeltaVelocity);
 
     mScalingFactorsBuffer = cl::Buffer(mCLContext, CL_MEM_READ_WRITE,
                                        mBufferSizeScalingFactors);
-    mQueue.enqueueWriteBuffer(mScalingFactorsBuffer, CL_TRUE,
-                              0, mBufferSizeScalingFactors, mScalingFactors);
 
     mVorticityBuffer = cl::Buffer(mCLContext, CL_MEM_READ_WRITE,
                                   mBufferSizeParticles);
-    mQueue.enqueueWriteBuffer(mVorticityBuffer, CL_TRUE,
-                              0, mBufferSizeParticles, mVorticityForces);
 
 #if !defined(USE_LINKEDCELL)
     // get closest multiple to of items/groups
