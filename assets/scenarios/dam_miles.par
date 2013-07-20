@@ -1,5 +1,5 @@
 part_input_file       dam_miles.in
-time_end              100.0
+time_end              0.5
 timestep_length       0.005
 x_min                 0.1
 x_max                 0.5
