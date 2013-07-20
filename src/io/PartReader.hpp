@@ -12,17 +12,16 @@ using std::string;
 using std::vector;
 
 
-class PartReader
-{
+class PartReader {
 private:
-    // Avoid copy
-    PartReader& operator=(PartReader& other);
-    PartReader (const PartReader &other);
+  // Avoid copy
+  PartReader &operator=(PartReader &other);
+  PartReader (const PartReader &other);
 
 public:
-    PartReader () {}
+  PartReader () {}
 
-    vector<Particle> read(const string &filename) const;
+  vector<Particle> read(const string &filename) const;
 
 };
 

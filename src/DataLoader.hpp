@@ -4,18 +4,17 @@
 #include <string>
 using std::string;
 
-class DataLoader
-{
+class DataLoader {
 public:
-    DataLoader();
-    ~DataLoader();
+  DataLoader();
+  ~DataLoader();
 
-    const string getPathForScenario(const string scenario);
-    const string getPathForKernel(const string kernel);
-    const string getPathForShader(const string shader);
-    const string getPathForTexture(const string texture);
+  const string getPathForScenario(const string scenario);
+  const string getPathForKernel(const string kernel);
+  const string getPathForShader(const string shader);
+  const string getPathForTexture(const string texture);
 private:
-    string rootDirectory;
+  string rootDirectory;
 };
 
 #endif // __DATALOADER_HPP

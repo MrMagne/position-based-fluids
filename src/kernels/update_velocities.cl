@@ -6,21 +6,20 @@ __kernel void updateVelocities(const __global float4 *positions,
                                const __global float4 *deltaVelocities,
                                const __global float4 *vorticity_forces,
                                const float timestep,
-                               const uint N)
-{
-    const uint i = get_global_id(0);
-    if (i >= N) return;
+                               const uint N) {
+  const uint i = get_global_id(0);
+  if (i >= N) return;
 
-    velocities[i].xyz = (predicted[i].xyz - positions[i].xyz) / timestep
-                        + deltaVelocities[i].xyz + timestep * gravity.xyz;
+  velocities[i].xyz = (predicted[i].xyz - positions[i].xyz) / timestep
+                      + deltaVelocities[i].xyz + timestep * gravity.xyz;
 
-    // Vorticity
-    velocities[i].xyz += timestep * vorticity_forces[i].xyz;
+  // Vorticity
+  velocities[i].xyz += timestep * vorticity_forces[i].xyz;
 
-    // #if defined(USE_DEBUG)
-    // printf("updateVelocites: i,t: %d,%f\npos: [%f,%f,%f]\npredict: [%f,%f,%f]\nvel: [%f,%f,%f]\n",
-    //        i, timestep, positions[i].x, positions[i].y, positions[i].z,
-    //        predicted[i].x, predicted[i].y, predicted[i].z,
-    //        velocities[i].x, velocities[i].y, velocities[i].z);
-    // #endif
+  // #if defined(USE_DEBUG)
+  // printf("updateVelocites: i,t: %d,%f\npos: [%f,%f,%f]\npredict: [%f,%f,%f]\nvel: [%f,%f,%f]\n",
+  //        i, timestep, positions[i].x, positions[i].y, positions[i].z,
+  //        predicted[i].x, predicted[i].y, predicted[i].z,
+  //        velocities[i].x, velocities[i].y, velocities[i].z);
+  // #endif
 }

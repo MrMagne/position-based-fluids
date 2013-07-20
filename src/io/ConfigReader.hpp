@@ -10,17 +10,16 @@
 using std::string;
 
 
-class ConfigReader
-{
+class ConfigReader {
 private:
-    // Avoid copy
-    ConfigReader& operator=(const ConfigReader& other);
-    ConfigReader (const ConfigReader &other);
+  // Avoid copy
+  ConfigReader &operator=(const ConfigReader &other);
+  ConfigReader (const ConfigReader &other);
 
 public:
-    ConfigReader () {}
+  ConfigReader () {}
 
-    ConfigParameters read(const string &filename) const;
+  ConfigParameters read(const string &filename) const;
 
 };
 

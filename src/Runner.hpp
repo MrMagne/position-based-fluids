@@ -7,19 +7,18 @@
 #include "visual/visual.hpp"
 
 
-class Runner
-{
+class Runner {
 private:
-    // Avoid copy
-    Runner &operator=(const Runner &other);
-    Runner (const Runner &other);
+  // Avoid copy
+  Runner &operator=(const Runner &other);
+  Runner (const Runner &other);
 
 public:
-    Runner () {}
+  Runner () {}
 
-    void run(const ConfigParameters &parameters,
-             Simulation &simulation,
-             CVisual &renderer) const;
+  void run(const ConfigParameters &parameters,
+           Simulation &simulation,
+           CVisual &renderer) const;
 
 };
 

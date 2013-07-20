@@ -26,99 +26,98 @@ using std::string;
 /**
  *  \brief  CVisual
  */
-class CVisual
-{
+class CVisual {
 public:
-    // Default constructor
-    CVisual (DataLoader *dataLoader,
-             const int width = 800,
-             const int height = 600);
+  // Default constructor
+  CVisual (DataLoader *dataLoader,
+           const int width = 800,
+           const int height = 600);
 
-    ~CVisual(); // Destructor
+  ~CVisual(); // Destructor
 
-    /**
-     *  \brief  Initializes window.
-     */
-    void initWindow(const string windowname = "GLFW Window");
+  /**
+   *  \brief  Initializes window.
+   */
+  void initWindow(const string windowname = "GLFW Window");
 
-    /**
-     *  \brief  Loads vertex and fragment shader.
-     */
-    GLuint loadShaders(const string &vertexFilename,
-                       const string &fragmentFilename);
+  /**
+   *  \brief  Loads vertex and fragment shader.
+   */
+  GLuint loadShaders(const string &vertexFilename,
+                     const string &fragmentFilename);
 
-    GLvoid
-    initParticlesVisual(const size_t numParticles);
+  GLvoid
+  initParticlesVisual(const size_t numParticles);
 
-    /**
-     *  \brief  Initializes system sizes, textures and buffer objects.
-     */
-    GLvoid
-    initSystemVisual(const cl_float4 sizesMin,
-                     const cl_float4 sizesMax);
+  /**
+   *  \brief  Initializes system sizes, textures and buffer objects.
+   */
+  GLvoid
+  initSystemVisual(const cl_float4 sizesMin,
+                   const cl_float4 sizesMax);
 
-    GLvoid
-    visualizeParticles(void);
+  GLvoid
+  visualizeParticles(void);
 
-    GLuint
-    createSharingBuffer(const GLsizeiptr size) const;
+  GLuint
+  createSharingBuffer(const GLsizeiptr size) const;
 
-    /**
-     *  \brief  Checks if we want to generate waves with 'G'.
-     */
-    void
-    checkInput(bool &generateWaves);
+  /**
+   *  \brief  Checks if we want to generate waves with 'G'.
+   */
+  void
+  checkInput(bool &generateWaves);
 
-    glm::vec3
-    resolveCamPosition(void) const;
+  glm::vec3
+  resolveCamPosition(void) const;
 
-    glm::mat4
-    calcLookAtMatrix(const glm::vec3 &cameraPt,
-                     const glm::vec3 &lookPt,
-                     const glm::vec3 &upPt) const;
+  glm::mat4
+  calcLookAtMatrix(const glm::vec3 &cameraPt,
+                   const glm::vec3 &lookPt,
+                   const glm::vec3 &upPt) const;
 
 private:
-    // Window stuff
-    int mWidth;
-    int mHeight;
-    DataLoader *mDataLoader;
-    GLuint mProgramID; /**< Program ID for OpenGL shaders */
-    GLuint mParticleProgramID;
+  // Window stuff
+  int mWidth;
+  int mHeight;
+  DataLoader *mDataLoader;
+  GLuint mProgramID; /**< Program ID for OpenGL shaders */
+  GLuint mParticleProgramID;
 
-    GLFWwindow *mWindow;
+  GLFWwindow *mWindow;
 
-    // System sizes
-    GLfloat mSizeXmin;
-    GLfloat mSizeXmax;
-    GLfloat mSizeYmin;
-    GLfloat mSizeYmax;
-    GLfloat mSizeZmin;
-    GLfloat mSizeZmax;
-    GLuint mSystemBufferID;
+  // System sizes
+  GLfloat mSizeXmin;
+  GLfloat mSizeXmax;
+  GLfloat mSizeYmin;
+  GLfloat mSizeYmax;
+  GLfloat mSizeZmin;
+  GLfloat mSizeZmax;
+  GLuint mSystemBufferID;
 
-    GLuint mPositionAttrib;
-    GLuint mNormalAttrib;
-    GLuint mTexcoordAttrib;
+  GLuint mPositionAttrib;
+  GLuint mNormalAttrib;
+  GLuint mTexcoordAttrib;
 
-    // Particle stuff
-    size_t mNumParticles;
-    GLfloat *mParticles; /**< Vertex array */
+  // Particle stuff
+  size_t mNumParticles;
+  GLfloat *mParticles; /**< Vertex array */
 
-    GLint mCameraToClipMatrixUnif;
-    GLint mWorldToCameraMatrixUnif;
-    GLint mTextureUnif;
+  GLint mCameraToClipMatrixUnif;
+  GLint mWorldToCameraMatrixUnif;
+  GLint mTextureUnif;
 
-    // Camera stuff
-    glm::vec3 mCamTarget;
-    glm::vec3 mCamSphere;
+  // Camera stuff
+  glm::vec3 mCamTarget;
+  glm::vec3 mCamSphere;
 
-    mutable GLuint mSharingBufferID;
+  mutable GLuint mSharingBufferID;
 
-    GLuint mParticlePositionAttrib;
-    GLint mParticleCameraToClipMatrixUnif;
-    GLint mParticleWorldToCameraMatrixUnif;
+  GLuint mParticlePositionAttrib;
+  GLint mParticleCameraToClipMatrixUnif;
+  GLint mParticleWorldToCameraMatrixUnif;
 
-    GLuint mWallTexture;
+  GLuint mWallTexture;
 
 };
 
