@@ -5,12 +5,14 @@ include_directories(
 	${CMAKE_SOURCE_DIR}/lib/soil/src/
 )
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -pedantic -Wall -Wextra -Werror -Wfatal-errors")
 add_definitions(-DUSE_LINKEDCELL -DUSE_CGL_SHARING)
 
 set(SOURCE
 	main.cpp
 	Runner.cpp
 	Simulation.cpp
+  DataLoader.cpp
 )
 
 set(HEADER
@@ -18,6 +20,7 @@ set(HEADER
   Particle.hpp
   Runner.hpp
   Simulation.hpp
+  DataLoader.hpp
 )
 
 add_subdirectory(io)
@@ -52,12 +55,24 @@ endif (APPLE)
 add_custom_command(TARGET hesp POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         "${HESP_SOURCE_DIR}/assets/scenarios"
-        $<TARGET_FILE_DIR:hesp>/assets/scenarios)
+        $<TARGET_FILE_DIR:hesp>/data/scenarios)
 
 add_custom_command(TARGET hesp POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         "${HESP_SOURCE_DIR}/assets/textures"
-        $<TARGET_FILE_DIR:hesp>/assets/textures)
+        $<TARGET_FILE_DIR:hesp>/data/textures)
 
-#file(COPY ../assets/scenarios DESTINATION $<TARGET_FILE_DIR:hesp>/assets)
-#file(COPY ../assets/textures DESTINATION $<TARGET_FILE_DIR:hesp>/assets)
+add_custom_command(TARGET hesp POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${HESP_SOURCE_DIR}/src/kernels"
+        $<TARGET_FILE_DIR:hesp>/data/kernels)
+
+add_custom_command(TARGET hesp POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${HESP_SOURCE_DIR}/src/hesp.hpp"
+        $<TARGET_FILE_DIR:hesp>/data/kernels)
+
+add_custom_command(TARGET hesp POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${HESP_SOURCE_DIR}/src/shaders"
+        $<TARGET_FILE_DIR:hesp>/data/shaders)

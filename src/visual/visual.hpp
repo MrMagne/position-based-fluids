@@ -11,6 +11,8 @@
 
 #include "../hesp.hpp"
 
+#include "../DataLoader.hpp"
+
 #include <string>
 
 
@@ -28,7 +30,8 @@ class CVisual
 {
 public:
     // Default constructor
-    CVisual (const int width = 800,
+    CVisual (DataLoader *dataLoader,
+             const int width = 800,
              const int height = 600);
 
     ~CVisual(); // Destructor
@@ -95,6 +98,7 @@ private:
     // Window stuff
     int mWidth;
     int mHeight;
+    DataLoader *mDataLoader;
     GLuint mProgramID; /**< Program ID for OpenGL shaders */
     GLuint mParticleProgramID;
 

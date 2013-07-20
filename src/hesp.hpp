@@ -3,8 +3,6 @@
 
 #ifdef __OPENCL_VERSION__
 
-#pragma OPENCL EXTENSION cl_amd_printf : enable
-
 // Enable atomic functions
 #if defined(cl_khr_global_int32_base_atomics) && (cl_khr_global_int32_extended_atomics)
 #pragma OPENCL EXTENSION cl_khr_global_int32_base_atomics : enable
@@ -52,11 +50,17 @@ typedef float4 hesp_float4;
 #define CL_USE_DEPRECATED_OPENCL_1_1_APIS
 #define __CL_ENABLE_EXCEPTIONS
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wall"
+#pragma GCC diagnostic ignored "-Wextra"
+#pragma GCC diagnostic ignored "-Wc++11-extra-semi"
+#pragma GCC diagnostic ignored "-Wnewline-eof"
 #if defined(__APPLE__) || defined(__MACOSX)
 #include "ocl/cl.hpp"
 #else
 #include <CL/cl.hpp>
 #endif // __APPLE__
+#pragma GCC diagnostic pop
 
 #ifdef USE_DOUBLE_PRECISION
 typedef cl_double hesp_float;

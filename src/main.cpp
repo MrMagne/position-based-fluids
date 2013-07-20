@@ -9,9 +9,6 @@
 
 #if defined(__APPLE__)
 #include <OpenGL/OpenGL.h>
-#include <mach-o/dyld.h>
-#include <limits.h>
-#include <libgen.h>
 #elif defined(UNIX)
 #include <GL/glx.h>
 #else
@@ -27,6 +24,7 @@
 #include "visual/visual.hpp"
 #include "Simulation.hpp"
 #include "Runner.hpp"
+#include "DataLoader.hpp"
 
 static const int WINDOW_WIDTH = 1280;
 static const int WINDOW_HEIGHT = 720;
@@ -42,59 +40,25 @@ using std::string;
 using std::exception;
 using std::runtime_error;
 
-int main(int argc, char *argv[])
+int main()
 {
     try
     {
-        char path[PATH_MAX + 1];
-        uint32_t size = sizeof(path);
-        if (_NSGetExecutablePath(path, &size) == 0)
-        {
-            char absolute_path[PATH_MAX + 1];
-            realpath(path, absolute_path);
-            printf("executable path is %s\n", dirname(absolute_path));
-        }
-        else
-        {
-            //TODO: Throw error
-        }
-
-        if ( (argc != 2) )
-        {
-            cerr << "usage: hesp <simulation_parameters_file>" << endl;
-            exit(-1);
-        }
-
+        DataLoader dataLoader;
         // Reading the configuration file
-        string parameters_filename = argv[1];
+        string parameters_filename = dataLoader.getPathForScenario("dam_miles.par");
+        cout << parameters_filename << endl;
         ConfigReader configReader;
         ConfigParameters parameters = configReader.read(parameters_filename);
 
-#if defined(__WIN32)
-        // Not tested
-        size_t found = parameters_filename.rfind("\\");
-#else
-        // CAUTION: Only works on Unix based systems which
-        // use single forward slashes for directories
-        size_t found = parameters_filename.rfind("/");
-#endif
-
-        string base_path;
-
-        if (found != string::npos)
-        {
-            base_path = parameters_filename.replace(found + 1,
-                                                    parameters_filename.length()
-                                                    - (found + 1), "");
-        }
-
         // reading the part(particle) file
-        string part_filename = base_path + parameters.partInputFile;
+        string part_filename = dataLoader.getPathForScenario(parameters.partInputFile);
+        cout << part_filename << endl;
         PartReader partReader;
         vector<Particle> particles = partReader.read(part_filename);
 
         // For visualization
-        CVisual renderer(WINDOW_WIDTH, WINDOW_HEIGHT);
+        CVisual renderer(&dataLoader, WINDOW_WIDTH, WINDOW_HEIGHT);
         renderer.initWindow("HESP Project");
 
 #if defined(USE_CGL_SHARING)
@@ -109,41 +73,41 @@ int main(int argc, char *argv[])
         // setup kernel sources
         CSetupCL clSetup;
         vector<string> kernelSources;
-        string header = clSetup.readSource("hesp.hpp");
+        string header = clSetup.readSource(dataLoader.getPathForKernel("hesp.hpp"));
         string source;
 
-        source = clSetup.readSource("kernels/predict_positions.cl");
+        source = clSetup.readSource(dataLoader.getPathForKernel("predict_positions.cl"));
         kernelSources.push_back(header + source);
-        source = clSetup.readSource("kernels/init_cells_old.cl");
+        source = clSetup.readSource(dataLoader.getPathForKernel("init_cells_old.cl"));
         kernelSources.push_back(header + source);
-        source = clSetup.readSource("kernels/update_cells.cl");
+        source = clSetup.readSource(dataLoader.getPathForKernel("update_cells.cl"));
         kernelSources.push_back(header + source);
-        source = clSetup.readSource("kernels/compute_scaling.cl");
+        source = clSetup.readSource(dataLoader.getPathForKernel("compute_scaling.cl"));
         kernelSources.push_back(header + source);
-        source = clSetup.readSource("kernels/compute_delta.cl");
+        source = clSetup.readSource(dataLoader.getPathForKernel("compute_delta.cl"));
         kernelSources.push_back(header + source);
-        source = clSetup.readSource("kernels/update_predicted.cl");
+        source = clSetup.readSource(dataLoader.getPathForKernel("update_predicted.cl"));
         kernelSources.push_back(header + source);
-        source = clSetup.readSource("kernels/update_velocities.cl");
+        source = clSetup.readSource(dataLoader.getPathForKernel("update_velocities.cl"));
         kernelSources.push_back(header + source);
-        source = clSetup.readSource("kernels/apply_vorticity_and_viscosity.cl");
+        source = clSetup.readSource(dataLoader.getPathForKernel("apply_vorticity_and_viscosity.cl"));
         kernelSources.push_back(header + source);
-        source = clSetup.readSource("kernels/update_positions.cl");
+        source = clSetup.readSource(dataLoader.getPathForKernel("update_positions.cl"));
         kernelSources.push_back(header + source);
-        source = clSetup.readSource("kernels/calc_hash.cl");
+        source = clSetup.readSource(dataLoader.getPathForKernel("calc_hash.cl"));
         kernelSources.push_back(header + source);
 #if !defined(USE_LINKEDCELL)
-        source = clSetup.readSource("kernels/radix_histogram.cl");
+        source = clSetup.readSource(dataLoader.getPathForKernel("radix_histogram.cl"));
         kernelSources.push_back(header + source);
-        source = clSetup.readSource("kernels/radix_scan.cl");
+        source = clSetup.readSource(dataLoader.getPathForKernel("radix_scan.cl"));
         kernelSources.push_back(header + source);
-        source = clSetup.readSource("kernels/radix_paste.cl");
+        source = clSetup.readSource(dataLoader.getPathForKernel("radix_paste.cl"));
         kernelSources.push_back(header + source);
-        source = clSetup.readSource("kernels/radix_reorder.cl");
+        source = clSetup.readSource(dataLoader.getPathForKernel("radix_reorder.cl"));
         kernelSources.push_back(header + source);
-        source = clSetup.readSource("kernels/init_cells.cl");
+        source = clSetup.readSource(dataLoader.getPathForKernel("init_cells.cl"));
         kernelSources.push_back(header + source);
-        source = clSetup.readSource("kernels/find_cells.cl");
+        source = clSetup.readSource(dataLoader.getPathForKernel("find_cells.cl"));
         kernelSources.push_back(header + source);
 #endif
 

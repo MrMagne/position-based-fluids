@@ -23,10 +23,12 @@ using std::vector;
 using std::ifstream;
 
 
-CVisual::CVisual (const int width,
+CVisual::CVisual (DataLoader *dataLoader,
+                  const int width,
                   const int height)
     : mWidth(width),
       mHeight(height),
+      mDataLoader(dataLoader),
       mProgramID(0),
       mWindow(NULL),
       mSystemBufferID(0),
@@ -177,7 +179,7 @@ CVisual::initSystemVisual(const hesp_float4 sizesMin,
     int texHeight = 0;
     int channels = 0;
 
-    unsigned char *image = SOIL_load_image("wall.tga", &texWidth, &texHeight,
+    unsigned char *image = SOIL_load_image(mDataLoader->getPathForTexture("wall.tga").c_str(), &texWidth, &texHeight,
                                            &channels, SOIL_LOAD_RGB);
 
 #if defined(USE_DEBUG)
@@ -196,8 +198,8 @@ CVisual::initSystemVisual(const hesp_float4 sizesMin,
                  systemVertices, GL_STATIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-    mProgramID = this->loadShaders("visual/shadervertex.glsl",
-                                   "visual/shaderfragment.glsl");
+    mProgramID = this->loadShaders(mDataLoader->getPathForShader("shadervertex.glsl"),
+                                   mDataLoader->getPathForShader("shaderfragment.glsl"));
 }
 
 GLvoid
@@ -230,8 +232,8 @@ CVisual::initParticlesVisual(const hesp_float4 *positions,
     mWorldToCameraMatrixUnif = glGetUniformLocation(mProgramID, "mv_matrix");
     mTextureUnif = glGetUniformLocation(mProgramID, "texture");
 
-    mParticleProgramID = this->loadShaders("visual/particlevertex.glsl",
-                                           "visual/particlefragment.glsl");
+    mParticleProgramID = this->loadShaders(mDataLoader->getPathForShader("particlevertex.glsl"),
+                                           mDataLoader->getPathForShader("particlefragment.glsl"));
 
     mParticlePositionAttrib = glGetAttribLocation(mParticleProgramID, "position");
     mParticleCameraToClipMatrixUnif = glGetUniformLocation(mParticleProgramID, "p_matrix");
@@ -270,8 +272,8 @@ CVisual::initParticlesVisual(const size_t numParticles)
     mWorldToCameraMatrixUnif = glGetUniformLocation(mProgramID, "mv_matrix");
     mTextureUnif = glGetUniformLocation(mProgramID, "texture");
 
-    mParticleProgramID = this->loadShaders("visual/particlevertex.glsl",
-                                           "visual/particlefragment.glsl");
+    mParticleProgramID = this->loadShaders(mDataLoader->getPathForShader("particlevertex.glsl"),
+                                           mDataLoader->getPathForShader("particlefragment.glsl"));
 
     mParticlePositionAttrib = glGetAttribLocation(mParticleProgramID, "position");
     mParticleCameraToClipMatrixUnif = glGetUniformLocation(mParticleProgramID, "p_matrix");
@@ -554,6 +556,9 @@ GLuint
 CVisual::loadShaders(const string &vertexFilename,
                      const string &fragmentFilename)
 {
+    cout << vertexFilename << endl;
+    cout << fragmentFilename << endl;
+
     GLuint programID = 0;
 
     string line; // Used for getline()
