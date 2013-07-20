@@ -34,12 +34,6 @@ void Runner::run(const ConfigParameters &parameters,
 
     cl_float time = 0.0f;
 
-#if !defined(USE_CGL_SHARING)
-    // Position and velocity arrays
-    cl_float4 *positions = NULL;
-    cl_float4 *velocities = NULL;
-#endif // USE_CGL_SHARING
-
     // System sizes
     const cl_float4 sizesMin = simulation.getSizesMin();
     const cl_float4 sizesMax = simulation.getSizesMax();
@@ -52,13 +46,7 @@ void Runner::run(const ConfigParameters &parameters,
 #endif // USE_LINKEDCELL
 
     renderer.initSystemVisual(sizesMin, sizesMax);
-
-#if defined(USE_CGL_SHARING)
     renderer.initParticlesVisual(numParticles);
-#else
-    simulation.dumpData(positions, velocities);
-    renderer.initParticlesVisual(positions, numParticles);
-#endif // USE_CGL_SHARING
 
 #if defined(MAKE_VIDEO)
     const string cmd = "ffmpeg -r 30 -f rawvideo -pix_fmt rgb24 "
@@ -121,13 +109,7 @@ void Runner::run(const ConfigParameters &parameters,
         // start = glfwGetTime();
 
         // Visualize particles
-#if defined(USE_CGL_SHARING)
         renderer.visualizeParticles();
-#else
-        simulation.dumpData(positions, velocities);
-        renderer.visualizeParticles(positions, velocities);
-#endif // USE_CGL_SHARING
-
         renderer.checkInput(shouldGenerateWaves);
 
         // end = glfwGetTime();

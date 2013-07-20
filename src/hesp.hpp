@@ -11,20 +11,21 @@
 #error "Device does not support atomic operations!"
 #endif // cl_khr_global_int32_base_atomics && cl_khr_global_int32_extended_atomics
 
-// Enable CL/GL sharing
-#if defined(USE_CGL_SHARING)
+#if defined(PLATFORM_APPLE)
 
-#if defined(cl_khr_gl_sharing)
-#pragma OPENCL EXTENSION cl_khr_gl_sharing : enable
-#else
-#if defined(__APPLE__) || defined(__MACOSX)
+#if (OS_X_VERSION < 1083)
 #pragma OPENCL EXTENSION cl_APPLE_gl_sharing : enable
 #else
-#error "Device does not support OpenCL/OpenGL sharing!"
-#endif // cl_APPLE_gl_sharing
-#endif // cl_khr_gl_sharing
+#pragma OPENCL EXTENSION cl_khr_gl_sharing : enable
+#endif
 
-#endif // USE_CGL_SHARING
+#else
+
+#if !defined(PLATFORM_AMD)
+#pragma OPENCL EXTENSION cl_khr_gl_sharing : enable
+#endif
+
+#endif
 
 #else
 

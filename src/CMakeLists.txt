@@ -6,7 +6,7 @@ include_directories(
 )
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -pedantic -Wall -Wextra -Werror -Wfatal-errors")
-add_definitions(-DUSE_LINKEDCELL -DUSE_CGL_SHARING)
+add_definitions(-DUSE_LINKEDCELL)
 
 set(SOURCE
 	main.cpp

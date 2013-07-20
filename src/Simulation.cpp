@@ -2,8 +2,6 @@
 
 #include <cstdio>
 
-#if defined(USE_CGL_SHARING)
-
 #if defined(__APPLE__)
 #include <OpenGL/OpenGL.h>
 #elif defined(UNIX)
@@ -11,9 +9,6 @@
 #else
 #include <GL/glx.h>
 #endif // UNIX
-
-#endif // USE_CGL_SHARING
-
 
 using std::vector;
 using std::cout;
@@ -181,8 +176,6 @@ Simulation::init(void)
     mGlobalRange = cl::NDRange(globalSize);
     mLocalRange = cl::NullRange;
 
-#if defined(USE_CGL_SHARING)
-    // context has to be setup to allow gl/cl sharing
     // TODO: buffer could be changed to be CL_MEM_WRITE_ONLY
     // but for debugging also reading it might be helpful
 #if defined(USE_DEBUG)
@@ -200,12 +193,6 @@ Simulation::init(void)
                               0, mBufferSizeParticles, mPositions);
     mQueue.enqueueReleaseGLObjects(&sharedBuffers);
     mQueue.finish();
-#else
-    mPositionsBuffer = cl::Buffer(mCLContext,
-                                  CL_MEM_READ_WRITE, mBufferSizeParticles);
-    mQueue.enqueueWriteBuffer(mPositionsBuffer, CL_TRUE,
-                              0, mBufferSizeParticles, mPositions);
-#endif // USE_CGL_SHARING
 
     mPredictedBuffer = cl::Buffer(mCLContext,
                                   CL_MEM_READ_WRITE, mBufferSizeParticles);
@@ -566,7 +553,6 @@ Simulation::step(void)
     double istart = 0.0f, iend = 0.0f;
 #endif // USE_DEBUG
 
-#if defined(USE_CGL_SHARING)
     // start = glfwGetTime();
     glFinish();
     vector<cl::Memory> sharedBuffers;
@@ -575,7 +561,6 @@ Simulation::step(void)
     // mQueue.finish();
     // end = glfwGetTime();
     // printf("acquiring gl:       %f msec\n", (end - start) * 1000);
-#endif
 
     // start = glfwGetTime();
     this->predictPositions();
@@ -677,14 +662,11 @@ Simulation::step(void)
     cout << "updatePositions \n" << endl;
 #endif // USE_DEBUG
 
-#if defined(USE_CGL_SHARING)
     // start = glfwGetTime();
     mQueue.enqueueReleaseGLObjects(&sharedBuffers);
     mQueue.finish(); // clFinish()
     // end = glfwGetTime();
     // printf("releasing gl:       %f msec\n", (end - start) * 1000);
-#endif
-
 }
 
 void

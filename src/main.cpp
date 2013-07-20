@@ -5,8 +5,6 @@
 #include <fstream>
 #include <stdexcept>
 
-#if defined(USE_CGL_SHARING)
-
 #if defined(__APPLE__)
 #include <OpenGL/OpenGL.h>
 #elif defined(UNIX)
@@ -14,8 +12,6 @@
 #else
 #include <GL/glx.h>
 #endif // UNIX
-
-#endif // USE_CGL_SHARING
 
 #include "hesp.hpp"
 #include "ocl/clsetup.hpp"
@@ -60,15 +56,8 @@ int main()
         // For visualization
         CVisual renderer(&dataLoader, WINDOW_WIDTH, WINDOW_HEIGHT);
         renderer.initWindow("HESP Project");
-
-#if defined(USE_CGL_SHARING)
         GLuint sharingBufferID = renderer.createSharingBuffer( particles.size()
                                  * sizeof(cl_float4) );
-#else
-        // TODO: probably better to modify the simulation constructor to only require
-        // sharing buffer id if we actually compile with USE_CGL_SHARING enabled
-        GLuint sharingBufferID = 0;
-#endif // USE_CGL_SHARING
 
         // setup kernel sources
         CSetupCL clSetup;
@@ -116,8 +105,6 @@ int main()
         cl::Platform platform = clSetup.selectPlatform();
         //cl::Platform platform = clSetup.getPlatforms()[1];
 
-#if defined(USE_CGL_SHARING)
-
 #if defined(__APPLE__)
         CGLContextObj glContext = CGLGetCurrentContext();
         CGLShareGroupObj shareGroup = CGLGetShareGroup(glContext);
@@ -146,20 +133,11 @@ int main()
         };
 #endif // __APPLE__
 
-#if defined(__APPLE__)
         vector<cl::Device> devices;
         // Get a vector of devices on this platform
         platform.getDevices(CL_DEVICE_TYPE_GPU, &devices);
         cl::Device device = devices.at(0);
-#else
-        cl::Device device = clSetup.selectDevice(platform);
-        //cl::Device device = clSetup.getDevices(platform)[1];
-#endif
         cl::Context context = clSetup.createContext(properties);
-#else
-        cl::Context context = clSetup.createContext(platform);
-        cl::Device device = clSetup.selectDevice(context);
-#endif // USE_CGL_SHARING
 
         string additionalCLflags;
         additionalCLflags += "-cl-mad-enable -cl-no-signed-zeros -cl-fast-relaxed-math ";

@@ -47,17 +47,8 @@ public:
     GLuint loadShaders(const string &vertexFilename,
                        const string &fragmentFilename);
 
-    /**
-     *  \brief  Initializes particles and buffer objects.
-     */
-    GLvoid
-    initParticlesVisual(const cl_float4 *positions,
-                        const size_t numParticles);
-
-#if defined(USE_CGL_SHARING)
     GLvoid
     initParticlesVisual(const size_t numParticles);
-#endif // USE_CGL_SHARING
 
     /**
      *  \brief  Initializes system sizes, textures and buffer objects.
@@ -65,17 +56,9 @@ public:
     GLvoid
     initSystemVisual(const cl_float4 sizesMin,
                      const cl_float4 sizesMax);
-    /**
-     *  \brief  Prints all particles to the GLFW window with OpenGL.
-     */
-    GLvoid
-    visualizeParticles(const cl_float4 *positions,
-                       const cl_float4 *velocities);
 
-#if defined(USE_CGL_SHARING)
     GLvoid
     visualizeParticles(void);
-#endif // USE_CGL_SHARING
 
     GLuint
     createSharingBuffer(const GLsizeiptr size) const;
@@ -120,7 +103,6 @@ private:
     // Particle stuff
     size_t mNumParticles;
     GLfloat *mParticles; /**< Vertex array */
-    GLuint mParticlesBufferID;
 
     GLint mCameraToClipMatrixUnif;
     GLint mWorldToCameraMatrixUnif;

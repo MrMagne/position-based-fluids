@@ -35,7 +35,6 @@ CVisual::CVisual (DataLoader *dataLoader,
       mPositionAttrib(0),
       mNumParticles(0),
       mParticles(NULL),
-      mParticlesBufferID(0),
       mCamTarget( glm::vec3(0.0f, 0.0f, 0.0f) ),
       mCamSphere( glm::vec3(0.0f, 20.0f, -0.5f) ),
       mSharingBufferID(0)
@@ -49,9 +48,7 @@ CVisual::~CVisual ()
     //cout << "Finish." << endl;
     glDeleteProgram(mProgramID);
 
-#if defined(USE_CGL_SHARING)
     delete[] mParticles;
-#endif // USE_CGL_SHARING
 
     glFinish();
     glfwTerminate();
@@ -203,64 +200,6 @@ CVisual::initSystemVisual(const cl_float4 sizesMin,
 }
 
 GLvoid
-CVisual::initParticlesVisual(const cl_float4 *positions,
-                             const size_t numParticles)
-{
-    mNumParticles = numParticles;
-
-    mParticles = new GLfloat[numParticles * 4];
-
-    // Fill vertex array
-    for (size_t i = 0; i < numParticles; ++i)
-    {
-        mParticles[4 * i + 0] = positions[i].s[0];
-        mParticles[4 * i + 1] = positions[i].s[1];
-        mParticles[4 * i + 2] = positions[i].s[2];
-        mParticles[4 * i + 3] = 1.0f;
-    }
-
-    glGenBuffers(1, &mParticlesBufferID);
-    glBindBuffer(GL_ARRAY_BUFFER, mParticlesBufferID);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 4 * numParticles,
-                 mParticles, GL_STREAM_DRAW);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-    mPositionAttrib = glGetAttribLocation(mProgramID, "position");
-    mNormalAttrib = glGetAttribLocation(mProgramID, "normal");
-    mTexcoordAttrib = glGetAttribLocation(mProgramID, "texcoord");
-    mCameraToClipMatrixUnif = glGetUniformLocation(mProgramID, "p_matrix");
-    mWorldToCameraMatrixUnif = glGetUniformLocation(mProgramID, "mv_matrix");
-    mTextureUnif = glGetUniformLocation(mProgramID, "texture");
-
-    mParticleProgramID = this->loadShaders(mDataLoader->getPathForShader("particlevertex.glsl"),
-                                           mDataLoader->getPathForShader("particlefragment.glsl"));
-
-    mParticlePositionAttrib = glGetAttribLocation(mParticleProgramID, "position");
-    mParticleCameraToClipMatrixUnif = glGetUniformLocation(mParticleProgramID, "p_matrix");
-    mParticleWorldToCameraMatrixUnif = glGetUniformLocation(mParticleProgramID, "mv_matrix");
-
-    glm::mat4 projectionMat = glm::perspective(45.0f,
-                              mWidth / (GLfloat) mHeight, 0.1f, 10.0f);
-
-    glUseProgram(mProgramID);
-    glUniformMatrix4fv(
-        mCameraToClipMatrixUnif,
-        1, GL_FALSE,
-        glm::value_ptr(projectionMat)
-    );
-    glUseProgram(0);
-
-    glUseProgram(mParticleProgramID);
-    glUniformMatrix4fv(
-        mParticleCameraToClipMatrixUnif,
-        1, GL_FALSE,
-        glm::value_ptr(projectionMat)
-    );
-    glUseProgram(0);
-}
-
-#if defined(USE_CGL_SHARING)
-GLvoid
 CVisual::initParticlesVisual(const size_t numParticles)
 {
     mNumParticles = numParticles;
@@ -298,7 +237,6 @@ CVisual::initParticlesVisual(const size_t numParticles)
     );
     glUseProgram(0);
 }
-#endif // USE_CGL_SHARING
 
 GLuint
 CVisual::createSharingBuffer(const GLsizeiptr size) const
@@ -316,94 +254,6 @@ CVisual::createSharingBuffer(const GLsizeiptr size) const
     return bufferID;
 }
 
-GLvoid
-CVisual::visualizeParticles(const cl_float4 *positions,
-                            const cl_float4 *velocities)
-{
-    glClearColor(0.05f, 0.05f, 0.05f, 0.0f); // Dark blue background
-    glClearDepth(1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    const glm::vec3 &camPos = resolveCamPosition();
-    const glm::mat4 lookAtMat = calcLookAtMatrix( camPos, mCamTarget,
-                                glm::vec3(0.0f, 1.0f, 0.0f) );
-
-    glUseProgram(mProgramID);
-
-    glUniformMatrix4fv(
-        mWorldToCameraMatrixUnif,
-        1, GL_FALSE,
-        glm::value_ptr(lookAtMat)
-    );
-
-    // Texture stuff do not optimize for now
-    // 1. only write uniform once
-    // 2. use variable offset instead of hardcoded 0
-    glUniform1i(mTextureUnif, 0);
-    glActiveTexture(GL_TEXTURE0 + 0);
-    glBindTexture(GL_TEXTURE_2D, mWallTexture);
-
-    glBindBuffer(GL_ARRAY_BUFFER, mSystemBufferID);
-    glEnableVertexAttribArray(mPositionAttrib);
-    glEnableVertexAttribArray(mNormalAttrib);
-    glVertexAttribPointer(mPositionAttrib, 4, GL_FLOAT, GL_FALSE,
-                          8 * sizeof(GLfloat), 0);
-    glVertexAttribPointer( mNormalAttrib, 4, GL_FLOAT, GL_FALSE,
-                           8 * sizeof(GLfloat), (void *) ( 4 * sizeof(GLfloat) ) );
-
-    glDrawArrays(GL_QUADS, 0, 8);
-
-    glDisableVertexAttribArray(mNormalAttrib);
-    glDisableVertexAttribArray(mPositionAttrib);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindTexture(GL_TEXTURE_2D, 0);
-
-    glUseProgram(0);
-
-    glUseProgram(mParticleProgramID);
-    glUniformMatrix4fv(
-        mParticleWorldToCameraMatrixUnif,
-        1, GL_FALSE,
-        glm::value_ptr(lookAtMat)
-    );
-
-    glBindBuffer(GL_ARRAY_BUFFER, mParticlesBufferID);
-    mParticles = (GLfloat *) glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
-
-    // Update data array
-    for (size_t i = 0; i < mNumParticles; ++i)
-    {
-        mParticles[4 * i + 0] = positions[i].s[0];
-        mParticles[4 * i + 1] = positions[i].s[1];
-        mParticles[4 * i + 2] = positions[i].s[2];
-        mParticles[4 * i + 3] = sqrt( velocities[i].s[0] * velocities[i].s[0]
-                                      + velocities[i].s[1] * velocities[i].s[1]
-                                      + velocities[i].s[2] * velocities[i].s[2] );
-
-#if defined(USE_DEBUG)
-        if (isnan(positions[i].s[0])
-                || isnan(positions[i].s[1])
-                || isnan(positions[i].s[2]))
-        {
-            cout << "isnan" << i << endl;
-        }
-#endif // USE_DEBUG
-    }
-
-    glUnmapBuffer(GL_ARRAY_BUFFER);
-
-    glEnableVertexAttribArray(mParticlePositionAttrib);
-    glVertexAttribPointer(mParticlePositionAttrib, 4, GL_FLOAT,
-                          GL_FALSE, 0, 0);
-    glDrawArrays(GL_POINTS, 0, mNumParticles);
-    glDisableVertexAttribArray(mParticlePositionAttrib);
-
-    glUseProgram(0);
-
-    glfwSwapBuffers(mWindow);
-}
-
-#if defined(USE_CGL_SHARING)
 GLvoid
 CVisual::visualizeParticles(void)
 {
@@ -468,7 +318,6 @@ CVisual::visualizeParticles(void)
 
     glfwSwapBuffers(mWindow);
 }
-#endif // USE_CGL_SHARING
 
 void
 CVisual::checkInput(bool &generateWaves)
