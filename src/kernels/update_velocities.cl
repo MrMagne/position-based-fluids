@@ -1,11 +1,11 @@
-__constant hesp_float3 gravity = (hesp_float3)(0.0f, -9.81f, 0.0f);
+__constant float3 gravity = (float3)(0.0f, -9.81f, 0.0f);
 
-__kernel void updateVelocities(const __global hesp_float4 *positions,
-                               const __global hesp_float4 *predicted,
-                               __global hesp_float4 *velocities,
-                               const __global hesp_float4 *deltaVelocities,
-                               const __global hesp_float4 *vorticity_forces,
-                               const hesp_float timestep,
+__kernel void updateVelocities(const __global float4 *positions,
+                               const __global float4 *predicted,
+                               __global float4 *velocities,
+                               const __global float4 *deltaVelocities,
+                               const __global float4 *vorticity_forces,
+                               const float timestep,
                                const uint N)
 {
     const uint i = get_global_id(0);

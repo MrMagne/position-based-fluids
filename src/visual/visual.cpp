@@ -136,8 +136,8 @@ CVisual::calcLookAtMatrix(const glm::vec3 &cameraPt,
 }
 
 GLvoid
-CVisual::initSystemVisual(const hesp_float4 sizesMin,
-                          const hesp_float4 sizesMax)
+CVisual::initSystemVisual(const cl_float4 sizesMin,
+                          const cl_float4 sizesMax)
 {
     // Set system sizes
     mSizeXmin = sizesMin.s[0];
@@ -203,7 +203,7 @@ CVisual::initSystemVisual(const hesp_float4 sizesMin,
 }
 
 GLvoid
-CVisual::initParticlesVisual(const hesp_float4 *positions,
+CVisual::initParticlesVisual(const cl_float4 *positions,
                              const size_t numParticles)
 {
     mNumParticles = numParticles;
@@ -317,8 +317,8 @@ CVisual::createSharingBuffer(const GLsizeiptr size) const
 }
 
 GLvoid
-CVisual::visualizeParticles(const hesp_float4 *positions,
-                            const hesp_float4 *velocities)
+CVisual::visualizeParticles(const cl_float4 *positions,
+                            const cl_float4 *velocities)
 {
     glClearColor(0.05f, 0.05f, 0.05f, 0.0f); // Dark blue background
     glClearDepth(1.0f);

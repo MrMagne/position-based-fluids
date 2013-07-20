@@ -1,5 +1,5 @@
-__kernel void updatePredicted(__global hesp_float4 *predicted,
-                              const __global hesp_float4 *delta,
+__kernel void updatePredicted(__global float4 *predicted,
+                              const __global float4 *delta,
                               const uint N)
 {
     const uint i = get_global_id(0);

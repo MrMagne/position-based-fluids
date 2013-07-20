@@ -1,7 +1,7 @@
-__kernel void applyVorticityAndViscosity(const __global hesp_float4 *predicted,
-        const __global hesp_float4 *velocities,
-        __global hesp_float4 *deltaVelocities,
-        __global hesp_float4 *vorticity_forces,
+__kernel void applyVorticityAndViscosity(const __global float4 *predicted,
+        const __global float4 *velocities,
+        __global float4 *deltaVelocities,
+        __global float4 *vorticity_forces,
 #if defined(USE_LINKEDCELL)
         const __global int *cells,
         const __global int *particles_list,
@@ -9,9 +9,9 @@ __kernel void applyVorticityAndViscosity(const __global hesp_float4 *predicted,
         const __global int2 *radixCells,
         const __global int2 *foundCells,
 #endif // USE_LINKEDCELL
-        const hesp_float4 system_length_min,
-        const hesp_float4 system_length_max,
-        const hesp_float4 cell_length,
+        const float4 system_length_min,
+        const float4 system_length_max,
+        const float4 cell_length,
         const int4 number_cells,
         const int N)
 {
@@ -19,12 +19,12 @@ __kernel void applyVorticityAndViscosity(const __global hesp_float4 *predicted,
     if (i >= N) return;
 
     const int END_OF_CELL_LIST = -1;
-    const hesp_float h = cell_length.x;
-    const hesp_float h2 = h * h;
-    const hesp_float h6 = h2 * h2 * h2;
-    const hesp_float h9 = h2 * h2 * h2 * h2 * h;
-    const hesp_float poly6_factor = 315.0f / (64.0f * M_PI * h9);
-    const hesp_float gradSpiky_factor = 45.0f / (M_PI * h6);
+    const float h = cell_length.x;
+    const float h2 = h * h;
+    const float h6 = h2 * h2 * h2;
+    const float h9 = h2 * h2 * h2 * h2 * h;
+    const float poly6_factor = 315.0f / (64.0f * M_PI * h9);
+    const float gradSpiky_factor = 45.0f / (M_PI * h6);
 
     int current_cell[3];
 
@@ -35,8 +35,8 @@ __kernel void applyVorticityAndViscosity(const __global hesp_float4 *predicted,
     current_cell[2] = (int) ( (predicted[i].z - system_length_min.z)
                               / cell_length.z );
 
-    hesp_float4 viscosity_sum = (hesp_float4) 0.0f;
-    hesp_float4 vorticity_sum = (hesp_float4) 0.0f;
+    float4 viscosity_sum = (float4) 0.0f;
+    float4 vorticity_sum = (float4) 0.0f;
 
     for (int x = -1; x <= 1; ++x)
     {
@@ -68,24 +68,24 @@ __kernel void applyVorticityAndViscosity(const __global hesp_float4 *predicted,
                 {
                     if (i != next)
                     {
-                        hesp_float4 r = predicted[i] - predicted[next];
-                        hesp_float r_length_2 = (r.x * r.x + r.y * r.y + r.z * r.z);
-                        hesp_float r_length = sqrt(r_length_2);
+                        float4 r = predicted[i] - predicted[next];
+                        float r_length_2 = (r.x * r.x + r.y * r.y + r.z * r.z);
+                        float r_length = sqrt(r_length_2);
 
                         if (r_length > 0.0f && r_length < h)
                         {
-                            hesp_float4 v = velocities[next] - velocities[i];
-                            hesp_float poly6 = poly6_factor * (h2 - r_length_2)
-                                               * (h2 - r_length_2) * (h2 - r_length_2);
+                            float4 v = velocities[next] - velocities[i];
+                            float poly6 = poly6_factor * (h2 - r_length_2)
+                                          * (h2 - r_length_2) * (h2 - r_length_2);
 
                             viscosity_sum += v * poly6 / predicted[next].w;
 
-                            hesp_float4 gradient_spiky = -1.0f * r / (r_length)
-                                                         * gradSpiky_factor
-                                                         * (h - r_length)
-                                                         * (h - r_length);
+                            float4 gradient_spiky = -1.0f * r / (r_length)
+                                                    * gradSpiky_factor
+                                                    * (h - r_length)
+                                                    * (h - r_length);
 
-                            hesp_float4 omega = (hesp_float4) 0.0f;
+                            float4 omega = (float4) 0.0f;
 
                             omega.x += v.y * gradient_spiky.z
                                        - v.z * gradient_spiky.y;
@@ -95,16 +95,16 @@ __kernel void applyVorticityAndViscosity(const __global hesp_float4 *predicted,
                                        - v.y * gradient_spiky.x;
 
                             // Center of Mass for gradient
-                            hesp_float4 mass_center = ( velocities[i].w * predicted[i]
-                                                        - velocities[next].w * predicted[next] )
-                                                      / (velocities[i].w + velocities[next].w);
+                            float4 mass_center = ( velocities[i].w * predicted[i]
+                                                   - velocities[next].w * predicted[next] )
+                                                 / (velocities[i].w + velocities[next].w);
 
-                            hesp_float4 eta = mass_center - predicted[i];
-                            hesp_float eta_norm = sqrt(eta.x * eta.x
-                                                       + eta.y * eta.y + eta.z * eta.z);
+                            float4 eta = mass_center - predicted[i];
+                            float eta_norm = sqrt(eta.x * eta.x
+                                                  + eta.y * eta.y + eta.z * eta.z);
                             //printf("eta: %f \n", gradient_spiky.x);
-                            
-                            hesp_float4 vorticity_tmp = (hesp_float4) 0.0f;
+
+                            float4 vorticity_tmp = (float4) 0.0f;
 
                             vorticity_tmp.x += eta.y * omega.z - eta.z * omega.y;
                             vorticity_tmp.y += eta.z * omega.x - eta.x * omega.z;
@@ -133,15 +133,15 @@ __kernel void applyVorticityAndViscosity(const __global hesp_float4 *predicted,
 
                     if (i != next)
                     {
-                        hesp_float4 r = predicted[i] - predicted[next];
-                        hesp_float r_length_2 = (r.x * r.x + r.y * r.y + r.z * r.z);
+                        float4 r = predicted[i] - predicted[next];
+                        float r_length_2 = (r.x * r.x + r.y * r.y + r.z * r.z);
 
                         if (r_length > 0.0f && r_length < h)
                         {
-                            hesp_float4 v = velocities[next] - velocities[i];
-                            hesp_float poly6 = poly6_factor * (h2 - r_length_2)
-                                               * (h2 - r_length_2)
-                                               * (h2 - r_length_2);
+                            float4 v = velocities[next] - velocities[i];
+                            float poly6 = poly6_factor * (h2 - r_length_2)
+                                          * (h2 - r_length_2)
+                                          * (h2 - r_length_2);
 
                             viscosity_sum += (1.0f / predicted[next].w) * v * poly6;
 
@@ -157,10 +157,10 @@ __kernel void applyVorticityAndViscosity(const __global hesp_float4 *predicted,
         }
     }
 
-    const hesp_float c = 0.01f;
+    const float c = 0.01f;
     deltaVelocities[i] = c * viscosity_sum;
 
-    const hesp_float epsilon = 0.01f;
+    const float epsilon = 0.01f;
     vorticity_forces[i] = epsilon * vorticity_sum;
 
     // #if defined(USE_DEBUG)

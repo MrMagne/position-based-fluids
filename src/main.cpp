@@ -63,7 +63,7 @@ int main()
 
 #if defined(USE_CGL_SHARING)
         GLuint sharingBufferID = renderer.createSharingBuffer( particles.size()
-                                 * sizeof(hesp_float4) );
+                                 * sizeof(cl_float4) );
 #else
         // TODO: probably better to modify the simulation constructor to only require
         // sharing buffer id if we actually compile with USE_CGL_SHARING enabled

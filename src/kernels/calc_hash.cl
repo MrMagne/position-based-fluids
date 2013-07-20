@@ -1,8 +1,8 @@
-__kernel void calcHash(const __global hesp_float4 *predicted,
+__kernel void calcHash(const __global float4 *predicted,
                        __global uint2 *radixCells,
-                       const hesp_float4 cell_length,
+                       const float4 cell_length,
                        const uint4 number_cells,
-                       const hesp_float4 system_length_min,
+                       const float4 system_length_min,
                        const uint maxInt,
                        const uint numParticles,
                        const uint numKeys)

@@ -23,7 +23,7 @@ void Runner::run(const ConfigParameters &parameters,
                  Simulation &simulation,
                  CVisual &renderer) const
 {
-    hesp_float wave = 0.0f;
+    cl_float wave = 0.0f;
     bool shouldGenerateWaves = false;
 
 #if defined(USE_DEBUG)
@@ -32,17 +32,17 @@ void Runner::run(const ConfigParameters &parameters,
 
     const unsigned int numParticles = simulation.getNumberParticles();
 
-    hesp_float time = 0.0f;
+    cl_float time = 0.0f;
 
 #if !defined(USE_CGL_SHARING)
     // Position and velocity arrays
-    hesp_float4 *positions = NULL;
-    hesp_float4 *velocities = NULL;
+    cl_float4 *positions = NULL;
+    cl_float4 *velocities = NULL;
 #endif // USE_CGL_SHARING
 
     // System sizes
-    const hesp_float4 sizesMin = simulation.getSizesMin();
-    const hesp_float4 sizesMax = simulation.getSizesMax();
+    const cl_float4 sizesMin = simulation.getSizesMin();
+    const cl_float4 sizesMax = simulation.getSizesMax();
 
     // Init
     simulation.init();
@@ -104,15 +104,15 @@ void Runner::run(const ConfigParameters &parameters,
 
         if (shouldGenerateWaves)
         {
-            static const hesp_float wave_push_length = (sizesMax.s[0]
+            static const cl_float wave_push_length = (sizesMax.s[0]
                     - sizesMin.s[0]) / 3.0f;
-            static const hesp_float wave_frequency = 1.0f;
-            static const hesp_float wave_start = -M_PI / 2.0f;
+            static const cl_float wave_frequency = 1.0f;
+            static const cl_float wave_start = -M_PI / 2.0f;
 
-            const hesp_float waveValue = sin(2.0f * M_PI * wave_frequency
-                                             * wave + wave_start)
-                                         * wave_push_length / 2.0f
-                                         + wave_push_length / 2.0f;
+            const cl_float waveValue = sin(2.0f * M_PI * wave_frequency
+                                           * wave + wave_start)
+                                       * wave_push_length / 2.0f
+                                       + wave_push_length / 2.0f;
 
             simulation.setWaveGenerator(waveValue);
             wave += parameters.timeStepLength;

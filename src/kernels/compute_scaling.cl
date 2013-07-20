@@ -1,5 +1,5 @@
-__kernel void computeScaling(__global hesp_float4 *predicted,
-                             __global hesp_float *scaling,
+__kernel void computeScaling(__global float4 *predicted,
+                             __global float *scaling,
 #if defined(USE_LINKEDCELL)
                              const __global int *cells,
                              const __global int *particles_list,
@@ -7,10 +7,10 @@ __kernel void computeScaling(__global hesp_float4 *predicted,
                              const __global int2 *radixCells,
                              const __global int2 *foundCells,
 #endif // USE_LINKEDCELL
-                             const hesp_float4 system_length_min,
-                             const hesp_float4 cell_length,
+                             const float4 system_length_min,
+                             const float4 cell_length,
                              const int4 number_cells,
-                             const hesp_float rest_density,
+                             const float rest_density,
                              const int N)
 {
     // Scaling = lambda
@@ -20,13 +20,13 @@ __kernel void computeScaling(__global hesp_float4 *predicted,
     const int END_OF_CELL_LIST = -1;
 
     // smoothing radius, should probably be the same as the grid size
-    const hesp_float h = cell_length.x; // ->input
-    const hesp_float h2 = h * h;
-    const hesp_float h6 = h2 * h2 * h2;
-    const hesp_float h9 = h6 * h2 * h;
-    const hesp_float poly6_factor = 315.0f / (64.0f * M_PI * h9);
-    const hesp_float gradSpiky_factor = 45.0f / (M_PI * h6);
-    const hesp_float e = 10000.0f;
+    const float h = cell_length.x; // ->input
+    const float h2 = h * h;
+    const float h6 = h2 * h2 * h2;
+    const float h9 = h6 * h2 * h;
+    const float poly6_factor = 315.0f / (64.0f * M_PI * h9);
+    const float gradSpiky_factor = 45.0f / (M_PI * h6);
+    const float e = 10000.0f;
 
     // calculate $$$\Delta p_i$$$
     int current_cell[3];
@@ -39,9 +39,9 @@ __kernel void computeScaling(__global hesp_float4 *predicted,
                               / cell_length.z );
 
     // Sum of rho_i, |nabla p_k C_i|^2 and nabla p_k C_i for k = i
-    hesp_float density_sum = 0.0f;
-    hesp_float gradient_sum_k = 0.0f;
-    hesp_float3 gradient_sum_k_i = (hesp_float3) 0.0f;
+    float density_sum = 0.0f;
+    float gradient_sum_k = 0.0f;
+    float3 gradient_sum_k_i = (float3) 0.0f;
 
     for (int x = -1; x <= 1; ++x)
     {
@@ -74,26 +74,26 @@ __kernel void computeScaling(__global hesp_float4 *predicted,
                 {
                     if (i != next)
                     {
-                        hesp_float3 r = predicted[i].xyz - predicted[next].xyz;
-                        hesp_float r_length_2 = (r.x * r.x + r.y * r.y + r.z * r.z);
+                        float3 r = predicted[i].xyz - predicted[next].xyz;
+                        float r_length_2 = (r.x * r.x + r.y * r.y + r.z * r.z);
 
                         // If h == r every term gets zero, so < h not <= h
                         if (r_length_2 > 0.0f && r_length_2 < h2)
                         {
-                            hesp_float r_length = sqrt(r_length_2);
+                            float r_length = sqrt(r_length_2);
 
                             //CAUTION: the two spiky kernels are only the same
                             //because the result is only used sqaured
                             // equation (8), if k = i
-                            hesp_float3 gradient_spiky = r / (r_length)
-                                                         * gradSpiky_factor
-                                                         * (h - r_length)
-                                                         * (h - r_length);
+                            float3 gradient_spiky = r / (r_length)
+                                                    * gradSpiky_factor
+                                                    * (h - r_length)
+                                                    * (h - r_length);
 
                             // equation (2)
-                            hesp_float poly6 = poly6_factor * (h2 - r_length_2)
-                                               * (h2 - r_length_2)
-                                               * (h2 - r_length_2);
+                            float poly6 = poly6_factor * (h2 - r_length_2)
+                                          * (h2 - r_length_2)
+                                          * (h2 - r_length_2);
                             density_sum += poly6;
 
                             // equation (9), denominator, if k = j
@@ -116,25 +116,25 @@ __kernel void computeScaling(__global hesp_float4 *predicted,
 
                     if (i != next)
                     {
-                        hesp_float3 r = predicted[i].xyz - predicted[next].xyz;
-                        hesp_float r_length_2 = (r.x * r.x + r.y * r.y + r.z * r.z);
+                        float3 r = predicted[i].xyz - predicted[next].xyz;
+                        float r_length_2 = (r.x * r.x + r.y * r.y + r.z * r.z);
 
                         // If h == r every term gets zero, so < h not <= h
                         if (r_length_2 > 0.0f && r_length_2 < h2)
                         {
-                            hesp_float r_length = sqrt(r_length_2);
+                            float r_length = sqrt(r_length_2);
 
                             //CAUTION: the two spiky kernels are only the same
                             //because the result is only used sqaured
                             // equation (8), if k = j
-                            hesp_float3 gradient_spiky = r / (r_length)
-                                                         * gradSpiky_factor
-                                                         * (h - r_length)
-                                                         * (h - r_length);
+                            float3 gradient_spiky = r / (r_length)
+                                                    * gradSpiky_factor
+                                                    * (h - r_length)
+                                                    * (h - r_length);
 
                             // equation (2)
-                            hesp_float poly6 = poly6_factor * (h2 - r_length_2)
-                                               * (h2 - r_length_2) * (h2 - r_length_2);
+                            float poly6 = poly6_factor * (h2 - r_length_2)
+                                          * (h2 - r_length_2) * (h2 - r_length_2);
                             density_sum += poly6;
 
                             // equation (9), denominator, if k = j
@@ -154,9 +154,9 @@ __kernel void computeScaling(__global hesp_float4 *predicted,
     gradient_sum_k += length(gradient_sum_k_i);
 
     predicted[i].w = density_sum;
-    
+
     // equation (1)
-    hesp_float density_constraint = (density_sum / rest_density) - 1.0f;
+    float density_constraint = (density_sum / rest_density) - 1.0f;
 
     // equation (11)
     scaling[i] = -1.0f * density_constraint / (gradient_sum_k * gradient_sum_k

@@ -1,9 +1,9 @@
-__kernel void updateCells(const __global hesp_float4 *predicted,
+__kernel void updateCells(const __global float4 *predicted,
                           __global int *cells,
                           __global int *particles_list,
-                          const hesp_float4 cell_length,
+                          const float4 cell_length,
                           const uint4 number_cells,
-                          const hesp_float4 system_length_min,
+                          const float4 system_length_min,
                           const uint N)
 {
     // Get particle and assign them to a cell

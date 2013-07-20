@@ -51,7 +51,7 @@ public:
      *  \brief  Initializes particles and buffer objects.
      */
     GLvoid
-    initParticlesVisual(const hesp_float4 *positions,
+    initParticlesVisual(const cl_float4 *positions,
                         const size_t numParticles);
 
 #if defined(USE_CGL_SHARING)
@@ -63,14 +63,14 @@ public:
      *  \brief  Initializes system sizes, textures and buffer objects.
      */
     GLvoid
-    initSystemVisual(const hesp_float4 sizesMin,
-                     const hesp_float4 sizesMax);
+    initSystemVisual(const cl_float4 sizesMin,
+                     const cl_float4 sizesMax);
     /**
      *  \brief  Prints all particles to the GLFW window with OpenGL.
      */
     GLvoid
-    visualizeParticles(const hesp_float4 *positions,
-                       const hesp_float4 *velocities);
+    visualizeParticles(const cl_float4 *positions,
+                       const cl_float4 *velocities);
 
 #if defined(USE_CGL_SHARING)
     GLvoid

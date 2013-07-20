@@ -26,25 +26,6 @@
 
 #endif // USE_CGL_SHARING
 
-#ifdef USE_DOUBLE_PRECISION
-
-#if defined(cl_khr_fp64)
-#pragma OPENCL EXTENSION cl_khr_fp64 : enable
-#elif defined(cl_amd_fp64)
-#pragma OPENCL EXTENSION cl_amd_fp64 : enable
-#else
-#error "Device does not support double precision extensions!"
-#endif // cl_khr_fp64
-typedef double hesp_float;
-typedef double3 hesp_float3;
-typedef double4 hesp_float4;
-#else
-typedef float hesp_float;
-typedef float3 hesp_float3;
-typedef float4 hesp_float4;
-
-#endif // USE_DOUBLE_PRECISION
-
 #else
 
 #define CL_USE_DEPRECATED_OPENCL_1_1_APIS
@@ -61,16 +42,6 @@ typedef float4 hesp_float4;
 #include <CL/cl.hpp>
 #endif // __APPLE__
 #pragma GCC diagnostic pop
-
-#ifdef USE_DOUBLE_PRECISION
-typedef cl_double hesp_float;
-typedef cl_double3 hesp_float3;
-typedef cl_double4 hesp_float4;
-#else
-typedef cl_float hesp_float;
-typedef cl_float3 hesp_float3;
-typedef cl_float4 hesp_float4;
-#endif // USE_DOUBLE_PRECISION
 
 #endif // __OPENCL_VERSION__
 

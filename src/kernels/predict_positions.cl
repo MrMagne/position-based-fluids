@@ -1,9 +1,9 @@
-__kernel void predictPositions(const __global hesp_float4 *positions,
-                               __global hesp_float4 *predicted,
-                               const __global hesp_float4 *velocities,
-                               const hesp_float4 system_length_min,
-                               const hesp_float4 system_length_max,
-                               const hesp_float timestep,
+__kernel void predictPositions(const __global float4 *positions,
+                               __global float4 *predicted,
+                               const __global float4 *velocities,
+                               const float4 system_length_min,
+                               const float4 system_length_max,
+                               const float timestep,
                                const uint N)
 {
     const uint i = get_global_id(0);

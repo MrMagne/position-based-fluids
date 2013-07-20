@@ -48,11 +48,11 @@ Simulation::Simulation(const ConfigParameters &parameters,
       mTimestepLength(parameters.timeStepLength),
       mTimeEnd(parameters.timeEnd),
       mNumParticles( particles.size() ),
-      mBufferSizeParticles( particles.size() * sizeof(hesp_float4) ),
+      mBufferSizeParticles( particles.size() * sizeof(cl_float4) ),
       mBufferSizeCells( parameters.xN *parameters.yN *parameters.zN
                         * sizeof(cl_int) ),
       mBufferSizeParticlesList( particles.size() * sizeof(cl_int) ),
-      mBufferSizeScalingFactors( particles.size() * sizeof(hesp_float) ),
+      mBufferSizeScalingFactors( particles.size() * sizeof(cl_float) ),
       mParticles(particles),
       mPositions(NULL),
       mVelocities(NULL),
@@ -123,13 +123,13 @@ Simulation::init(void)
 #endif // USE_DEBUG
 
     // setup buffers
-    mPositions = new hesp_float4[mNumParticles];
-    mPredicted = new hesp_float4[mNumParticles];
-    mVelocities = new hesp_float4[mNumParticles];
-    mScalingFactors = new hesp_float[mNumParticles];
-    mDelta = new hesp_float4[mNumParticles];
-    mDeltaVelocity = new hesp_float4[mNumParticles];
-    mVorticityForces = new hesp_float4[mNumParticles];
+    mPositions = new cl_float4[mNumParticles];
+    mPredicted = new cl_float4[mNumParticles];
+    mVelocities = new cl_float4[mNumParticles];
+    mScalingFactors = new cl_float[mNumParticles];
+    mDelta = new cl_float4[mNumParticles];
+    mDeltaVelocity = new cl_float4[mNumParticles];
+    mVorticityForces = new cl_float4[mNumParticles];
 #if !defined(USE_LINKEDCELL)
     mRadixCells = new cl_uint2[_NKEYS];
 #endif // USE_LINKEDCELL
@@ -219,13 +219,13 @@ Simulation::init(void)
 
     mDeltaBuffer = cl::Buffer(mCLContext,
                               CL_MEM_READ_WRITE, mBufferSizeParticles);
-    mQueue.enqueueWriteBuffer(mDeltaBuffer, CL_TRUE, 
-            0, mBufferSizeParticles, mDelta);
+    mQueue.enqueueWriteBuffer(mDeltaBuffer, CL_TRUE,
+                              0, mBufferSizeParticles, mDelta);
 
     mDeltaVelocityBuffer = cl::Buffer(mCLContext,
                                       CL_MEM_READ_WRITE, mBufferSizeParticles);
-    mQueue.enqueueWriteBuffer(mDeltaVelocityBuffer, CL_TRUE, 
-            0, mBufferSizeParticles, mDeltaVelocity);
+    mQueue.enqueueWriteBuffer(mDeltaVelocityBuffer, CL_TRUE,
+                              0, mBufferSizeParticles, mDeltaVelocity);
 
     mScalingFactorsBuffer = cl::Buffer(mCLContext, CL_MEM_READ_WRITE,
                                        mBufferSizeScalingFactors);
@@ -688,7 +688,7 @@ Simulation::step(void)
 }
 
 void
-Simulation::dumpData( hesp_float4 * (&positions), hesp_float4 * (&velocities) )
+Simulation::dumpData( cl_float4 * (&positions), cl_float4 * (&velocities) )
 {
     mQueue.enqueueReadBuffer(mPositionsBuffer, CL_TRUE,
                              0, mBufferSizeParticles, mPositions);

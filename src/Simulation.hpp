@@ -56,8 +56,8 @@ public:
     void step(void);
 
     // Copy current positions and velocities
-    void dumpData( hesp_float4 * (&positions),
-                   hesp_float4 * (&velocities) );
+    void dumpData( cl_float4 * (&positions),
+                   cl_float4 * (&velocities) );
 
     cl_uint
     getNumberParticles(void) const
@@ -65,49 +65,49 @@ public:
         return mNumParticles;
     }
 
-    hesp_float
+    cl_float
     getSizeXmin(void) const
     {
         return mSystemSizeMin.s[0];
     }
 
-    hesp_float
+    cl_float
     getSizeXmax(void) const
     {
         return mSystemSizeMax.s[0];
     }
 
-    hesp_float
+    cl_float
     getSizeYmin(void) const
     {
         return mSystemSizeMin.s[1];
     }
 
-    hesp_float
+    cl_float
     getSizeYmax(void) const
     {
         return mSystemSizeMax.s[1];
     }
 
-    hesp_float
+    cl_float
     getSizeZmin(void) const
     {
         return mSystemSizeMin.s[2];
     }
 
-    hesp_float
+    cl_float
     getSizeZmax(void) const
     {
         return mSystemSizeMax.s[2];
     }
 
-    const hesp_float4
+    const cl_float4
     getSizesMin(void) const
     {
         return mSystemSizeMin;
     }
 
-    const hesp_float4
+    const cl_float4
     getSizesMax(void) const
     {
         return mSystemSizeMax;
@@ -124,8 +124,8 @@ public:
 private:
 
     // Sizes of domain
-    hesp_float4 mSystemSizeMin;
-    hesp_float4 mSystemSizeMax;
+    cl_float4 mSystemSizeMin;
+    cl_float4 mSystemSizeMax;
 
     // OpenCL objects supplied by OpenCL setup
     const cl::Context &mCLContext;
@@ -142,8 +142,8 @@ private:
     cl::NDRange mLocalRange;
 
     // configuration parameters for the simulation
-    hesp_float mTimestepLength;
-    hesp_float mTimeEnd;
+    cl_float mTimestepLength;
+    cl_float mTimeEnd;
 
     const cl_uint mNumParticles;
 
@@ -156,13 +156,13 @@ private:
     const vector<Particle> &mParticles;
 
     // The host memory holding the simulation data
-    hesp_float4 *mPositions;
-    hesp_float4 *mPredicted;
-    hesp_float4 *mVelocities;
-    hesp_float4 *mDelta;
-    hesp_float4 *mDeltaVelocity;
-    hesp_float *mScalingFactors;
-    hesp_float4 *mVorticityForces;
+    cl_float4 *mPositions;
+    cl_float4 *mPredicted;
+    cl_float4 *mVelocities;
+    cl_float4 *mDelta;
+    cl_float4 *mDeltaVelocity;
+    cl_float *mScalingFactors;
+    cl_float4 *mVorticityForces;
 #if !defined(USE_LINKEDCELL)
     cl_uint2 *mRadixCells;
 #endif // USE_LINKEDCELL
@@ -190,17 +190,17 @@ private:
     cl_int4 mNumberCells;
 
     // Lengths of each cell in each direction
-    hesp_float4 mCellLength;
+    cl_float4 mCellLength;
 
     // Array for the cells
     cl_int *mCells;
     cl_int *mParticlesList;
 
     // Rest density
-    const hesp_float mRestDens;
+    const cl_float mRestDens;
 
     // For generating waves
-    hesp_float mWaveGenerator;
+    cl_float mWaveGenerator;
 
     GLuint mSharingBufferID;
 
