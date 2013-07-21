@@ -52,6 +52,42 @@ else()
   )
 endif (APPLE)
 
+SET(KERNELS
+  "${HESP_SOURCE_DIR}/src/hesp.hpp"
+  "${HESP_SOURCE_DIR}/src/kernels/apply_vorticity_and_viscosity.cl"
+  "${HESP_SOURCE_DIR}/src/kernels/calc_hash.cl"
+  "${HESP_SOURCE_DIR}/src/kernels/compute_delta.cl"
+  "${HESP_SOURCE_DIR}/src/kernels/compute_scaling.cl"
+  "${HESP_SOURCE_DIR}/src/kernels/find_cells.cl"
+  "${HESP_SOURCE_DIR}/src/kernels/init_cells.cl"
+  "${HESP_SOURCE_DIR}/src/kernels/init_cells_old.cl"
+  "${HESP_SOURCE_DIR}/src/kernels/predict_positions.cl"
+  "${HESP_SOURCE_DIR}/src/kernels/radix_histogram.cl"
+  "${HESP_SOURCE_DIR}/src/kernels/radix_paste.cl"
+  "${HESP_SOURCE_DIR}/src/kernels/radix_reorder.cl"
+  "${HESP_SOURCE_DIR}/src/kernels/update_cells.cl"
+  "${HESP_SOURCE_DIR}/src/kernels/update_positions.cl"
+  "${HESP_SOURCE_DIR}/src/kernels/update_predicted.cl"
+  "${HESP_SOURCE_DIR}/src/kernels/update_velocities.cl"
+)
+
+add_custom_command(TARGET hesp PRE_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${HESP_SOURCE_DIR}/src/kernels"
+        $<TARGET_FILE_DIR:hesp>/data/kernels)
+
+foreach(KERNEL ${KERNELS})
+  add_custom_command(TARGET hesp PRE_BUILD
+                     COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                     ${KERNEL} 
+                     $<TARGET_FILE_DIR:hesp>/data/kernels)
+endforeach()
+
+add_custom_command(TARGET hesp POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${HESP_SOURCE_DIR}/assets/textures"
+        $<TARGET_FILE_DIR:hesp>/data/textures)
+
 add_custom_command(TARGET hesp POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         "${HESP_SOURCE_DIR}/assets/scenarios"
@@ -66,21 +102,6 @@ add_custom_command(TARGET hesp POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
         "${HESP_SOURCE_DIR}/assets/scenarios/dam_miles.par"
         $<TARGET_FILE_DIR:hesp>/data/scenarios)
-
-add_custom_command(TARGET hesp POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-        "${HESP_SOURCE_DIR}/assets/textures"
-        $<TARGET_FILE_DIR:hesp>/data/textures)
-
-add_custom_command(TARGET hesp POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-        "${HESP_SOURCE_DIR}/src/kernels"
-        $<TARGET_FILE_DIR:hesp>/data/kernels)
-
-add_custom_command(TARGET hesp POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        "${HESP_SOURCE_DIR}/src/hesp.hpp"
-        $<TARGET_FILE_DIR:hesp>/data/kernels)
 
 add_custom_command(TARGET hesp POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
