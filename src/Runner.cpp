@@ -2,6 +2,8 @@
 
 #include <sstream>
 #include <cstdio>
+#include <functional>
+#include <numeric>
 
 #if defined(MAKE_VIDEO)
 #include <unistd.h>
@@ -73,12 +75,13 @@ void Runner::run(const ConfigParameters &parameters,
     }
   }
 
-  do {
-    // double start = glfwGetTime();
+  double start, end;
+  std::vector<double> times;
 
+  do {
+    start = glfwGetTime();
     simulation.step();
 
-    // double end = glfwGetTime();
     //#if defined(USE_DEBUG)
     // printf("physics:           %f msec\n", (end - start) * 1000);
     //#endif // USE_DEBUG
@@ -115,6 +118,9 @@ void Runner::run(const ConfigParameters &parameters,
       wave = 0.0f;
     }
 
+    end = glfwGetTime();
+    times.push_back(end - start);
+
 #if defined(MAKE_VIDEO)
     glReadPixels(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, GL_RGB, GL_UNSIGNED_BYTE, framedata);
     fwrite(framedata, 1, nbytes, ffmpeg);
@@ -125,6 +131,14 @@ void Runner::run(const ConfigParameters &parameters,
 #endif // USE_DEBUG
 
   } while (time <= parameters.timeEnd);
+
+  double sum = std::accumulate(times.begin(), times.end(), 0.0);
+  double mean = sum / times.size();
+  double sq_sum = std::inner_product(times.begin(), times.end(), times.begin(), 0.0);
+  double stdev = std::sqrt(sq_sum / times.size() - mean * mean);
+
+  cout << "mean: " << mean << endl;
+  cout << "std: " << stdev << endl;
 
 #if defined(USE_DEBUG)
   cout << "[END] Runner" << endl;
