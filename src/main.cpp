@@ -161,6 +161,11 @@ int main() {
     clflags << "-DCELL_LENGTH_Z=" << (parameters.zMax - parameters.zMin) / parameters.zN << "f ";
     clflags << "-DTIMESTEP=" << parameters.timeStepLength << "f ";
     clflags << "-DREST_DENSITY=" << parameters.restDensity << "f ";
+    float h = (parameters.xMax - parameters.xMin) / parameters.xN;
+    clflags << "-DPBF_H=" << h << "f ";
+    clflags << "-DPBF_H_2=" << pow(h, 2) << "f ";
+    clflags << "-DPOLY6_FACTOR=" << 315.0f / (64.0f * M_PI * pow(h, 9)) << "f ";
+    clflags << "-DGRAD_SPIKY_FACTOR=" << 45.0f / (M_PI * pow(h, 6)) << "f ";
 
     cl::Program program = clSetup.createProgram(kernelSources, context,
                           device, clflags.str());

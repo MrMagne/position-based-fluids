@@ -15,14 +15,6 @@ __kernel void computeDelta(__global float4 *delta,
 
   const int END_OF_CELL_LIST = -1;
 
-  // smoothing radius
-  const float h = CELL_LENGTH_X;
-  const float h2 = h * h;
-  const float h6 = h2 * h2 * h2;
-  const float h9 = h6 * h2 * h;
-  const float poly6_factor = 315.0f / (64.0f * M_PI * h9);
-  const float gradSpiky_factor = 45.0f / (M_PI * h6);
-
   int current_cell[3];
 
   current_cell[0] = (int) ( (predicted[i].x - SYSTEM_MIN_X)
@@ -63,25 +55,25 @@ __kernel void computeDelta(__global float4 *delta,
             float4 r = predicted[i] - predicted[next];
             float r_length_2 = r.x * r.x + r.y * r.y + r.z * r.z;
 
-            if (r_length_2 > 0.0f && r_length_2 < h2) {
+            if (r_length_2 > 0.0f && r_length_2 < PBF_H_2) {
               float r_length = sqrt(r_length_2);
               float4 gradient_spiky = -1.0f * r / (r_length)
-                                      * gradSpiky_factor
-                                      * (h - r_length)
-                                      * (h - r_length);
+                                      * GRAD_SPIKY_FACTOR
+                                      * (PBF_H - r_length)
+                                      * (PBF_H - r_length);
 
-              float poly6_r = poly6_factor * (h2 - r_length_2)
-                              * (h2 - r_length_2)
-                              * (h2 - r_length_2);
+              // float poly6_r = poly6_factor * (PBF_H_2 - r_length_2)
+              //                 * (PBF_H_2 - r_length_2)
+              //                 * (PBF_H_2 - r_length_2);
 
-              // equation (13)
-              const float q = 0.3f * h;
-              float poly6_q = poly6_factor * (h2 - q)
-                              * (h2 - q) * (h2 - q);
-              const float k = 0.1f;
-              const uint n = 4;
+              // // equation (13)
+              // const float q = 0.3f * h;
+              // float poly6_q = poly6_factor * (h2 - q)
+              //                 * (h2 - q) * (h2 - q);
+              // const float k = 0.1f;
+              // const uint n = 4;
 
-              float s_corr = -1.0f * k * pow(poly6_r / poly6_q, n);
+              // float s_corr = -1.0f * k * pow(poly6_r / poly6_q, n);
 
               // Sum for delta p of scaling factors and grad spiky
               // in equation (12)
@@ -133,28 +125,27 @@ __kernel void computeDelta(__global float4 *delta,
   // equation (12)
   float4 delta_p = sum / REST_DENSITY;
 
-  const float radius = h;
   float4 future = predicted[i] + delta_p;
 
-  if ( (future.x - radius) < (SYSTEM_MIN_X + wave_generator) ) {
-    future.x = SYSTEM_MIN_X + wave_generator + radius;
+  if ( (future.x - PBF_H) < (SYSTEM_MIN_X + wave_generator) ) {
+    future.x = SYSTEM_MIN_X + wave_generator + PBF_H;
     //future.x += ((system_length_min.x + wave_generator) - (future.x - radius) ) * 2.0f;
-  } else if ( (future.x + radius) > SYSTEM_MAX_X ) {
-    future.x = SYSTEM_MAX_X - radius;
+  } else if ( (future.x + PBF_H) > SYSTEM_MAX_X ) {
+    future.x = SYSTEM_MAX_X - PBF_H;
     //future.x += (system_length_max.x - (future.x + radius)) * 2.0f;
   }
-  if ( (future.y - radius) < SYSTEM_MIN_Y ) {
-    future.y = SYSTEM_MIN_Y + radius;
+  if ( (future.y - PBF_H) < SYSTEM_MIN_Y ) {
+    future.y = SYSTEM_MIN_Y + PBF_H;
     //future.y += (system_length_min.y - (future.y - radius)) * 2.0f;
-  } else if ( (future.y + radius) > SYSTEM_MAX_Y ) {
-    future.y = SYSTEM_MAX_Y - radius;
+  } else if ( (future.y + PBF_H) > SYSTEM_MAX_Y ) {
+    future.y = SYSTEM_MAX_Y - PBF_H;
     //future.y += (system_length_max.y - (future.y + radius)) * 2.0f;
   }
-  if ( (future.z - radius) < SYSTEM_MIN_Z ) {
-    future.z = SYSTEM_MIN_Z + radius;
+  if ( (future.z - PBF_H) < SYSTEM_MIN_Z ) {
+    future.z = SYSTEM_MIN_Z + PBF_H;
     //future.z += (system_length_min.z - (future.z - radius)) * 2.0f;
-  } else if ( (future.z + radius) > SYSTEM_MAX_Z ) {
-    future.z = SYSTEM_MAX_Z - radius;
+  } else if ( (future.z + PBF_H) > SYSTEM_MAX_Z ) {
+    future.z = SYSTEM_MAX_Z - PBF_H;
     //future.z += (system_length_max.z - (future.z + radius)) * 2.0f;
   }
 

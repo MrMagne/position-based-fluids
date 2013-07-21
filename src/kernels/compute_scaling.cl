@@ -13,14 +13,6 @@ __kernel void computeScaling(__global float4 *predicted,
   if (i >= N) return;
 
   const int END_OF_CELL_LIST = -1;
-
-  // smoothing radius, should probably be the same as the grid size
-  const float h = CELL_LENGTH_X; // ->input
-  const float h2 = h * h;
-  const float h6 = h2 * h2 * h2;
-  const float h9 = h6 * h2 * h;
-  const float poly6_factor = 315.0f / (64.0f * M_PI * h9);
-  const float gradSpiky_factor = 45.0f / (M_PI * h6);
   const float e = 10000.0f;
 
   // calculate $$$\Delta p_i$$$
@@ -67,21 +59,21 @@ __kernel void computeScaling(__global float4 *predicted,
             float r_length_2 = (r.x * r.x + r.y * r.y + r.z * r.z);
 
             // If h == r every term gets zero, so < h not <= h
-            if (r_length_2 > 0.0f && r_length_2 < h2) {
+            if (r_length_2 > 0.0f && r_length_2 < PBF_H_2) {
               float r_length = sqrt(r_length_2);
 
               //CAUTION: the two spiky kernels are only the same
               //because the result is only used sqaured
               // equation (8), if k = i
               float3 gradient_spiky = r / (r_length)
-                                      * gradSpiky_factor
-                                      * (h - r_length)
-                                      * (h - r_length);
+                                      * GRAD_SPIKY_FACTOR
+                                      * (PBF_H - r_length)
+                                      * (PBF_H - r_length);
 
               // equation (2)
-              float poly6 = poly6_factor * (h2 - r_length_2)
-                            * (h2 - r_length_2)
-                            * (h2 - r_length_2);
+              float poly6 = POLY6_FACTOR * (PBF_H_2 - r_length_2)
+                            * (PBF_H_2 - r_length_2)
+                            * (PBF_H_2 - r_length_2);
               density_sum += poly6;
 
               // equation (9), denominator, if k = j

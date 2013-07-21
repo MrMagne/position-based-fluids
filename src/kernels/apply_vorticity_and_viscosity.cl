@@ -13,12 +13,6 @@ __kernel void applyVorticityAndViscosity(const __global float4 *predicted,
   if (i >= N) return;
 
   const int END_OF_CELL_LIST = -1;
-  const float h = CELL_LENGTH_X;
-  const float h2 = h * h;
-  const float h6 = h2 * h2 * h2;
-  const float h9 = h2 * h2 * h2 * h2 * h;
-  const float poly6_factor = 315.0f / (64.0f * M_PI * h9);
-  const float gradSpiky_factor = 45.0f / (M_PI * h6);
 
   int current_cell[3];
 
@@ -58,11 +52,11 @@ __kernel void applyVorticityAndViscosity(const __global float4 *predicted,
             float4 r = predicted[i] - predicted[next];
             float r_length_2 = (r.x * r.x + r.y * r.y + r.z * r.z);
 
-            if (r_length_2 > 0.0f && r_length_2 < h2) {
+            if (r_length_2 > 0.0f && r_length_2 < PBF_H_2) {
               float4 v = velocities[next] - velocities[i];
-              float poly6 = poly6_factor * (h2 - r_length_2)
-                            * (h2 - r_length_2)
-                            * (h2 - r_length_2);
+              float poly6 = POLY6_FACTOR * (PBF_H_2 - r_length_2)
+                            * (PBF_H_2 - r_length_2)
+                            * (PBF_H_2 - r_length_2);
 
               viscosity_sum += (1.0f / predicted[next].w) * v * poly6;
 
