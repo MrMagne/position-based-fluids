@@ -136,8 +136,17 @@ void Runner::run(const ConfigParameters &parameters,
   double mean = sum / times.size();
   double sq_sum = std::inner_product(times.begin(), times.end(), times.begin(), 0.0);
   double stdev = std::sqrt(sq_sum / times.size() - mean * mean);
+  double median;
+  size_t size = times.size();
+  sort(times.begin(), times.end());
+  if (size  % 2 == 0) {
+    median = (times[size / 2 - 1] + times[size / 2]) / 2;
+  } else {
+    median = times[size / 2];
+  }
 
   cout << "mean: " << mean << endl;
+  cout << "median: " << median << endl;
   cout << "std: " << stdev << endl;
 
 #if defined(USE_DEBUG)
