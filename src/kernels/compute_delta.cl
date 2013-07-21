@@ -139,37 +139,29 @@ __kernel void computeDelta(__global float4 *delta,
   // equation (12)
   float4 delta_p = sum / rest_density;
 
-  float radius = h * 0.5f;
+  float radius = h;
   float4 future = predicted[i] + delta_p;
 
   if ( (future.x - radius) < (system_length_min.x + wave_generator) ) {
-    future.x += 2.0f * (system_length_min.x + wave_generator - future.x + radius);
-    //future.x = system_length_min.x + wave_generator + radius;
-    //future.x += ((system_length_min.x + wave_generator) - (future.x - radius) ) * 2;
+    future.x = system_length_min.x + wave_generator + radius;
+    //future.x += ((system_length_min.x + wave_generator) - (future.x - radius) ) * 2.0f;
   } else if ( (future.x + radius) > system_length_max.x ) {
-    future.x -= 2.0f * (future.x + radius - system_length_max.x);
-    //future.x = system_length_max.x - radius;
-    //future.x += (system_length_max.x - (future.x + radius)) * 2;
+    future.x = system_length_max.x - radius;
+    //future.x += (system_length_max.x - (future.x + radius)) * 2.0f;
   }
-
   if ( (future.y - radius) < system_length_min.y ) {
-    future.y += 2.0f * (system_length_min.y - future.y + radius);
-    //future.y = system_length_min.y + radius;
-    //future.y += (system_length_min.y - (future.y - radius)) * 2;
+    future.y = system_length_min.y + radius;
+    //future.y += (system_length_min.y - (future.y - radius)) * 2.0f;
   } else if ( (future.y + radius) > system_length_max.y ) {
-    future.y -= 2.0f * (future.y + radius - system_length_max.y);
-    //future.y = system_length_max.y - radius;
-    //future.y += (system_length_max.y - (future.y + radius)) * 2;
+    future.y = system_length_max.y - radius;
+    //future.y += (system_length_max.y - (future.y + radius)) * 2.0f;
   }
-
   if ( (future.z - radius) < system_length_min.z ) {
-    future.z += 2.0f * (system_length_min.z - future.z + radius);
-    //future.z = system_length_min.z + radius;
-    //future.z += (system_length_min.z - (future.z - radius)) * 2;
+    future.z = system_length_min.z + radius;
+    //future.z += (system_length_min.z - (future.z - radius)) * 2.0f;
   } else if ( (future.z + radius) > system_length_max.z ) {
-    future.z -= 2.0f * (future.z + radius - system_length_max.z);
-    //future.z = system_length_max.z - radius;
-    //future.z += (system_length_max.z - (future.z + radius)) * 2;
+    future.z = system_length_max.z - radius;
+    //future.z += (system_length_max.z - (future.z + radius)) * 2.0f;
   }
 
   delta[i] = future - predicted[i];
