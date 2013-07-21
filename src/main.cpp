@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <stdexcept>
+#include <sstream>
 
 #if defined(__APPLE__)
 #include <OpenGL/OpenGL.h>
@@ -134,24 +135,34 @@ int main() {
     cl::Device device = devices.at(0);
     cl::Context context = clSetup.createContext(properties);
 
-    string additionalCLflags;
-    additionalCLflags += "-cl-mad-enable -cl-no-signed-zeros -cl-fast-relaxed-math ";
-
-    // This maybe much more elegant
-#ifdef USE_DOUBLE_PRECISION
-    additionalCLflags += "-DUSE_DOUBLE_PRECISION ";
-#endif // USE_DOUBLE_PRECISION
+    std::ostringstream clflags;
+    clflags << "-cl-mad-enable -cl-no-signed-zeros -cl-fast-relaxed-math ";
 
 #ifdef USE_DEBUG
-    additionalCLflags += "-DUSE_DEBUG ";
+    clflags << "-DUSE_DEBUG ";
 #endif // USE_DEBUG
 
 #ifdef USE_LINKEDCELL
-    additionalCLflags += "-DUSE_LINKEDCELL ";
+    clflags << "-DUSE_LINKEDCELL ";
 #endif // USE_LINKEDCELL
 
+    clflags << "-DSYSTEM_MIN_X=" << parameters.xMin << "f ";
+    clflags << "-DSYSTEM_MAX_X=" << parameters.xMax << "f ";
+    clflags << "-DSYSTEM_MIN_Y=" << parameters.yMin << "f ";
+    clflags << "-DSYSTEM_MAX_Y=" << parameters.yMax << "f ";
+    clflags << "-DSYSTEM_MIN_Z=" << parameters.zMin << "f ";
+    clflags << "-DSYSTEM_MAX_Z=" << parameters.zMax << "f ";
+    clflags << "-DNUMBER_OF_CELLS_X=" << parameters.xN << " ";
+    clflags << "-DNUMBER_OF_CELLS_Y=" << parameters.yN << " ";
+    clflags << "-DNUMBER_OF_CELLS_Z=" << parameters.zN << " ";
+    clflags << "-DCELL_LENGTH_X=" << (parameters.xMax - parameters.xMin) / parameters.xN << "f ";
+    clflags << "-DCELL_LENGTH_Y=" << (parameters.yMax - parameters.yMin) / parameters.yN << "f ";
+    clflags << "-DCELL_LENGTH_Z=" << (parameters.zMax - parameters.zMin) / parameters.zN << "f ";
+    clflags << "-DTIMESTEP=" << parameters.timeStepLength << "f ";
+    clflags << "-DREST_DENSITY=" << parameters.restDensity << ".0f ";
+
     cl::Program program = clSetup.createProgram(kernelSources, context,
-                          device, additionalCLflags);
+                          device, clflags.str());
 
     map<string, cl::Kernel> kernels = clSetup.createKernelsMap(program);
     Simulation simulation(parameters, particles, kernels,

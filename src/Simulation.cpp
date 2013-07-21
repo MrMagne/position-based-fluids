@@ -53,7 +53,6 @@ Simulation::Simulation(const ConfigParameters &parameters,
     mVelocities(NULL),
     mCells(NULL),
     mParticlesList(NULL),
-    mRestDens(parameters.restDensity),
     mWaveGenerator(0.0f),
     mSharingBufferID(sharingBufferID) {
 
@@ -247,8 +246,7 @@ Simulation::updateVelocities(void) {
   mKernels["updateVelocities"].setArg(0, mPositionsBuffer);
   mKernels["updateVelocities"].setArg(1, mPredictedBuffer);
   mKernels["updateVelocities"].setArg(2, mVelocitiesBuffer);
-  mKernels["updateVelocities"].setArg(3, mTimestepLength);
-  mKernels["updateVelocities"].setArg(4, mNumParticles);
+  mKernels["updateVelocities"].setArg(3, mNumParticles);
 
   mQueue.enqueueNDRangeKernel(mKernels["updateVelocities"], 0,
                               mGlobalRange, mLocalRange);
@@ -266,11 +264,7 @@ Simulation::applyVorticityAndViscosity(void) {
   mKernels["applyVorticityAndViscosity"].setArg(3, mRadixCellsBuffer);
   mKernels["applyVorticityAndViscosity"].setArg(4, mFoundCellsBuffer);
 #endif // USE_LINKEDCELL
-  mKernels["applyVorticityAndViscosity"].setArg(5, mSystemSizeMin);
-  mKernels["applyVorticityAndViscosity"].setArg(6, mSystemSizeMax);
-  mKernels["applyVorticityAndViscosity"].setArg(7, mCellLength);
-  mKernels["applyVorticityAndViscosity"].setArg(8, mNumberCells);
-  mKernels["applyVorticityAndViscosity"].setArg(9, mNumParticles);
+  mKernels["applyVorticityAndViscosity"].setArg(5, mNumParticles);
 
   mQueue.enqueueNDRangeKernel(mKernels["applyVorticityAndViscosity"],
                               0, mGlobalRange, mLocalRange);
@@ -281,10 +275,7 @@ Simulation::predictPositions(void) {
   mKernels["predictPositions"].setArg(0, mPositionsBuffer);
   mKernels["predictPositions"].setArg(1, mPredictedBuffer);
   mKernels["predictPositions"].setArg(2, mVelocitiesBuffer);
-  mKernels["predictPositions"].setArg(3, mSystemSizeMin);
-  mKernels["predictPositions"].setArg(4, mSystemSizeMax);
-  mKernels["predictPositions"].setArg(5, mTimestepLength);
-  mKernels["predictPositions"].setArg(6, mNumParticles);
+  mKernels["predictPositions"].setArg(3, mNumParticles);
 
   mQueue.enqueueNDRangeKernel(mKernels["predictPositions"], 0,
                               mGlobalRange, mLocalRange);
@@ -312,14 +303,8 @@ Simulation::computeDelta(void) {
   mKernels["computeDelta"].setArg(3, mRadixCellsBuffer);
   mKernels["computeDelta"].setArg(4, mFoundCellsBuffer);
 #endif
-  mKernels["computeDelta"].setArg(5, mTimestepLength);
-  mKernels["computeDelta"].setArg(6, mSystemSizeMin);
-  mKernels["computeDelta"].setArg(7, mSystemSizeMax);
-  mKernels["computeDelta"].setArg(8, mCellLength);
-  mKernels["computeDelta"].setArg(9, mNumberCells);
-  mKernels["computeDelta"].setArg(10, mWaveGenerator);
-  mKernels["computeDelta"].setArg(11, mRestDens);
-  mKernels["computeDelta"].setArg(12, mNumParticles);
+  mKernels["computeDelta"].setArg(5, mWaveGenerator);
+  mKernels["computeDelta"].setArg(6, mNumParticles);
 
   mQueue.enqueueNDRangeKernel(mKernels["computeDelta"], 0,
                               mGlobalRange, mLocalRange);
@@ -336,11 +321,7 @@ Simulation::computeScaling(void) {
   mKernels["computeScaling"].setArg(2, mRadixCellsBuffer);
   mKernels["computeScaling"].setArg(3, mFoundCellsBuffer);
 #endif
-  mKernels["computeScaling"].setArg(4, mSystemSizeMin);
-  mKernels["computeScaling"].setArg(5, mCellLength);
-  mKernels["computeScaling"].setArg(6, mNumberCells);
-  mKernels["computeScaling"].setArg(7, mRestDens);
-  mKernels["computeScaling"].setArg(8, mNumParticles);
+  mKernels["computeScaling"].setArg(4, mNumParticles);
 
   mQueue.enqueueNDRangeKernel(mKernels["computeScaling"], 0,
                               mGlobalRange, mLocalRange);
@@ -361,10 +342,7 @@ Simulation::updateCells(void) {
   mKernels["updateCells"].setArg(0, mPredictedBuffer);
   mKernels["updateCells"].setArg(1, mCellsBuffer);
   mKernels["updateCells"].setArg(2, mParticlesListBuffer);
-  mKernels["updateCells"].setArg(3, mCellLength);
-  mKernels["updateCells"].setArg(4, mNumberCells);
-  mKernels["updateCells"].setArg(5, mSystemSizeMin);
-  mKernels["updateCells"].setArg(6, mNumParticles);
+  mKernels["updateCells"].setArg(3, mNumParticles);
 
   mQueue.enqueueNDRangeKernel(mKernels["updateCells"], 0,
                               mGlobalRange, mLocalRange);
@@ -388,12 +366,9 @@ Simulation::radix(void) {
 
   mKernels["calcHash"].setArg(0, mPredictedBuffer);
   mKernels["calcHash"].setArg(1, mRadixCellsBuffer);
-  mKernels["calcHash"].setArg(2, mCellLength);
-  mKernels["calcHash"].setArg(3, mNumberCells);
-  mKernels["calcHash"].setArg(4, mSystemSizeMin);
-  mKernels["calcHash"].setArg(5, _MAXINT);
-  mKernels["calcHash"].setArg(6, mNumParticles);
-  mKernels["calcHash"].setArg(7, _NKEYS);
+  mKernels["calcHash"].setArg(2, _MAXINT);
+  mKernels["calcHash"].setArg(3, mNumParticles);
+  mKernels["calcHash"].setArg(4, _NKEYS);
 
   mQueue.enqueueNDRangeKernel(mKernels["calcHash"], cl::NullRange,
                               cl::NDRange(_NKEYS), cl::NullRange);

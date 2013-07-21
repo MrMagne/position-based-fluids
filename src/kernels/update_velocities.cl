@@ -1,12 +1,11 @@
 __kernel void updateVelocities(const __global float4 *positions,
                                const __global float4 *predicted,
                                __global float4 *velocities,
-                               const float timestep,
                                const uint N) {
   const uint i = get_global_id(0);
   if (i >= N) return;
 
-  velocities[i].xyz = (predicted[i].xyz - positions[i].xyz) / timestep;
+  velocities[i].xyz = (predicted[i].xyz - positions[i].xyz) / TIMESTEP;
 
   // #if defined(USE_DEBUG)
   // printf("updateVelocites: i,t: %d,%f\npos: [%f,%f,%f]\npredict: [%f,%f,%f]\nvel: [%f,%f,%f]\n",

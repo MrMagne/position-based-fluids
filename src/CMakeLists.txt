@@ -78,7 +78,7 @@ add_custom_command(TARGET hesp PRE_BUILD
 
 foreach(KERNEL ${KERNELS})
   add_custom_command(TARGET hesp PRE_BUILD
-                     COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                     COMMAND ${CMAKE_COMMAND} -E copy
                      ${KERNEL} 
                      $<TARGET_FILE_DIR:hesp>/data/kernels)
 endforeach()
@@ -93,13 +93,13 @@ add_custom_command(TARGET hesp POST_BUILD
         "${HESP_SOURCE_DIR}/assets/scenarios"
         $<TARGET_FILE_DIR:hesp>/data/scenarios)
 
-add_custom_command(TARGET hesp POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+add_custom_command(TARGET hesp PRE_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy
         "${HESP_SOURCE_DIR}/assets/scenarios/dam_miles.par"
         $<TARGET_FILE_DIR:hesp>/data/scenarios)
 
-add_custom_command(TARGET hesp POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+add_custom_command(TARGET hesp PRE_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy
         "${HESP_SOURCE_DIR}/assets/scenarios/dam_miles.par"
         $<TARGET_FILE_DIR:hesp>/data/scenarios)
 

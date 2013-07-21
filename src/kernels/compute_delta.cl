@@ -8,13 +8,7 @@ __kernel void computeDelta(__global float4 *delta,
                            const __global int2 *radixCells,
                            const __global int2 *foundCells,
 #endif // USE_LINKEDCELL
-                           const float timestep,
-                           const float4 system_length_min,
-                           const float4 system_length_max,
-                           const float4 cell_length,
-                           const int4 number_cells,
                            const float wave_generator,
-                           const float rest_density,
                            const int N) {
   const int i = get_global_id(0);
   if (i >= N) return;
@@ -22,7 +16,7 @@ __kernel void computeDelta(__global float4 *delta,
   const int END_OF_CELL_LIST = -1;
 
   // smoothing radius
-  const float h = cell_length.x;
+  const float h = CELL_LENGTH_X;
   const float h2 = h * h;
   const float h6 = h2 * h2 * h2;
   const float h9 = h6 * h2 * h;
@@ -31,12 +25,12 @@ __kernel void computeDelta(__global float4 *delta,
 
   int current_cell[3];
 
-  current_cell[0] = (int) ( (predicted[i].x - system_length_min.x)
-                            / cell_length.x );
-  current_cell[1] = (int) ( (predicted[i].y - system_length_min.y)
-                            / cell_length.y );
-  current_cell[2] = (int) ( (predicted[i].z - system_length_min.z)
-                            / cell_length.z );
+  current_cell[0] = (int) ( (predicted[i].x - SYSTEM_MIN_X)
+                            / CELL_LENGTH_X );
+  current_cell[1] = (int) ( (predicted[i].y - SYSTEM_MIN_Y)
+                            / CELL_LENGTH_Y );
+  current_cell[2] = (int) ( (predicted[i].z - SYSTEM_MIN_Z)
+                            / CELL_LENGTH_Z );
 
   // Sum of lambdas
   float4 sum = (float4) 0.0f;
@@ -50,15 +44,15 @@ __kernel void computeDelta(__global float4 *delta,
         neighbour_cell[1] = current_cell[1] + y;
         neighbour_cell[2] = current_cell[2] + z;
 
-        if (neighbour_cell[0] < 0 || neighbour_cell[0] >= number_cells.x ||
-            neighbour_cell[1] < 0 || neighbour_cell[1] >= number_cells.y ||
-            neighbour_cell[2] < 0 || neighbour_cell[2] >= number_cells.z) {
+        if (neighbour_cell[0] < 0 || neighbour_cell[0] >= NUMBER_OF_CELLS_X ||
+            neighbour_cell[1] < 0 || neighbour_cell[1] >= NUMBER_OF_CELLS_Y ||
+            neighbour_cell[2] < 0 || neighbour_cell[2] >= NUMBER_OF_CELLS_Z) {
           continue;
         }
 
         uint cell_index = neighbour_cell[0] +
-                          neighbour_cell[1] * number_cells.x +
-                          neighbour_cell[2] * number_cells.x * number_cells.y;
+                          neighbour_cell[1] * NUMBER_OF_CELLS_X +
+                          neighbour_cell[2] * NUMBER_OF_CELLS_X * NUMBER_OF_CELLS_Y;
 
 #if defined(USE_LINKEDCELL)
         // Next particle in list
@@ -137,30 +131,30 @@ __kernel void computeDelta(__global float4 *delta,
   }
 
   // equation (12)
-  float4 delta_p = sum / rest_density;
+  float4 delta_p = sum / REST_DENSITY;
 
-  float radius = h;
+  const float radius = h;
   float4 future = predicted[i] + delta_p;
 
-  if ( (future.x - radius) < (system_length_min.x + wave_generator) ) {
-    future.x = system_length_min.x + wave_generator + radius;
+  if ( (future.x - radius) < (SYSTEM_MIN_X + wave_generator) ) {
+    future.x = SYSTEM_MIN_X + wave_generator + radius;
     //future.x += ((system_length_min.x + wave_generator) - (future.x - radius) ) * 2.0f;
-  } else if ( (future.x + radius) > system_length_max.x ) {
-    future.x = system_length_max.x - radius;
+  } else if ( (future.x + radius) > SYSTEM_MAX_X ) {
+    future.x = SYSTEM_MAX_X - radius;
     //future.x += (system_length_max.x - (future.x + radius)) * 2.0f;
   }
-  if ( (future.y - radius) < system_length_min.y ) {
-    future.y = system_length_min.y + radius;
+  if ( (future.y - radius) < SYSTEM_MIN_Y ) {
+    future.y = SYSTEM_MIN_Y + radius;
     //future.y += (system_length_min.y - (future.y - radius)) * 2.0f;
-  } else if ( (future.y + radius) > system_length_max.y ) {
-    future.y = system_length_max.y - radius;
+  } else if ( (future.y + radius) > SYSTEM_MAX_Y ) {
+    future.y = SYSTEM_MAX_Y - radius;
     //future.y += (system_length_max.y - (future.y + radius)) * 2.0f;
   }
-  if ( (future.z - radius) < system_length_min.z ) {
-    future.z = system_length_min.z + radius;
+  if ( (future.z - radius) < SYSTEM_MIN_Z ) {
+    future.z = SYSTEM_MIN_Z + radius;
     //future.z += (system_length_min.z - (future.z - radius)) * 2.0f;
-  } else if ( (future.z + radius) > system_length_max.z ) {
-    future.z = system_length_max.z - radius;
+  } else if ( (future.z + radius) > SYSTEM_MAX_Z ) {
+    future.z = SYSTEM_MAX_Z - radius;
     //future.z += (system_length_max.z - (future.z + radius)) * 2.0f;
   }
 

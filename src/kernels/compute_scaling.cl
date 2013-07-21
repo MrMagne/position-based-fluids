@@ -7,10 +7,6 @@ __kernel void computeScaling(__global float4 *predicted,
                              const __global int2 *radixCells,
                              const __global int2 *foundCells,
 #endif // USE_LINKEDCELL
-                             const float4 system_length_min,
-                             const float4 cell_length,
-                             const int4 number_cells,
-                             const float rest_density,
                              const int N) {
   // Scaling = lambda
   const int i = get_global_id(0);
@@ -19,7 +15,7 @@ __kernel void computeScaling(__global float4 *predicted,
   const int END_OF_CELL_LIST = -1;
 
   // smoothing radius, should probably be the same as the grid size
-  const float h = cell_length.x; // ->input
+  const float h = CELL_LENGTH_X; // ->input
   const float h2 = h * h;
   const float h6 = h2 * h2 * h2;
   const float h9 = h6 * h2 * h;
@@ -30,12 +26,12 @@ __kernel void computeScaling(__global float4 *predicted,
   // calculate $$$\Delta p_i$$$
   int current_cell[3];
 
-  current_cell[0] = (int) ( (predicted[i].x - system_length_min.x)
-                            / cell_length.x );
-  current_cell[1] = (int) ( (predicted[i].y - system_length_min.y)
-                            / cell_length.y );
-  current_cell[2] = (int) ( (predicted[i].z - system_length_min.z)
-                            / cell_length.z );
+  current_cell[0] = (int) ( (predicted[i].x - SYSTEM_MIN_X)
+                            / CELL_LENGTH_X );
+  current_cell[1] = (int) ( (predicted[i].y - SYSTEM_MIN_Y)
+                            / CELL_LENGTH_Y );
+  current_cell[2] = (int) ( (predicted[i].z - SYSTEM_MIN_Z)
+                            / CELL_LENGTH_Z );
 
   // Sum of rho_i, |nabla p_k C_i|^2 and nabla p_k C_i for k = i
   float density_sum = 0.0f;
@@ -51,15 +47,15 @@ __kernel void computeScaling(__global float4 *predicted,
         neighbour_cell[1] = current_cell[1] + y;
         neighbour_cell[2] = current_cell[2] + z;
 
-        if (neighbour_cell[0] < 0 || neighbour_cell[0] >= number_cells.x ||
-            neighbour_cell[1] < 0 || neighbour_cell[1] >= number_cells.y ||
-            neighbour_cell[2] < 0 || neighbour_cell[2] >= number_cells.z) {
+        if (neighbour_cell[0] < 0 || neighbour_cell[0] >= NUMBER_OF_CELLS_X ||
+            neighbour_cell[1] < 0 || neighbour_cell[1] >= NUMBER_OF_CELLS_Y ||
+            neighbour_cell[2] < 0 || neighbour_cell[2] >= NUMBER_OF_CELLS_Z) {
           continue;
         }
 
         uint cell_index = neighbour_cell[0] +
-                          neighbour_cell[1] * number_cells.x +
-                          neighbour_cell[2] * number_cells.x * number_cells.y;
+                          neighbour_cell[1] * NUMBER_OF_CELLS_X +
+                          neighbour_cell[2] * NUMBER_OF_CELLS_X * NUMBER_OF_CELLS_Y;
 
 #if defined(USE_LINKEDCELL)
         // Next particle in list
@@ -145,9 +141,9 @@ __kernel void computeScaling(__global float4 *predicted,
   predicted[i].w = density_sum;
 
   // equation (1)
-  float density_constraint = (density_sum / rest_density) - 1.0f;
+  float density_constraint = (density_sum / REST_DENSITY) - 1.0f;
 
   // equation (11)
   scaling[i] = -1.0f * density_constraint / (gradient_sum_k * gradient_sum_k
-               / (rest_density * rest_density) + e);
+               / (REST_DENSITY * REST_DENSITY) + e);
 }

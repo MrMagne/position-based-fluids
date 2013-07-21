@@ -176,9 +176,6 @@ private:
   cl_int *mCells;
   cl_int *mParticlesList;
 
-  // Rest density
-  const cl_float mRestDens;
-
   // For generating waves
   cl_float mWaveGenerator;
 
