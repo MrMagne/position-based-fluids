@@ -8,6 +8,10 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunneeded-internal-declaration"
+#include <glm/gtx/string_cast.hpp>
+#pragma GCC diagnostic pop
 
 #include "../hesp.hpp"
 
@@ -105,6 +109,7 @@ private:
 
   GLint mCameraToClipMatrixUnif;
   GLint mWorldToCameraMatrixUnif;
+  GLint mModelToWorldMatrixUnif;
   GLint mTextureUnif;
 
   // Camera stuff
@@ -116,6 +121,7 @@ private:
   GLuint mParticlePositionAttrib;
   GLint mParticleCameraToClipMatrixUnif;
   GLint mParticleWorldToCameraMatrixUnif;
+  GLint mParticleModelToWorldMatrixUnif;
 
   GLuint mWallTexture;
 

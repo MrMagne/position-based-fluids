@@ -199,6 +199,7 @@ CVisual::initParticlesVisual(const size_t numParticles) {
   mTexcoordAttrib = glGetAttribLocation(mProgramID, "texcoord");
   mCameraToClipMatrixUnif = glGetUniformLocation(mProgramID, "cameraToClipMatrix");
   mWorldToCameraMatrixUnif = glGetUniformLocation(mProgramID, "worldToCameraMatrix");
+  mModelToWorldMatrixUnif = glGetUniformLocation(mProgramID, "modelToWorldMatrix");
   mTextureUnif = glGetUniformLocation(mProgramID, "texture");
 
   mParticleProgramID = this->loadShaders(mDataLoader->getPathForShader("particlevertex.glsl"),
@@ -207,15 +208,29 @@ CVisual::initParticlesVisual(const size_t numParticles) {
   mParticlePositionAttrib = glGetAttribLocation(mParticleProgramID, "position");
   mParticleCameraToClipMatrixUnif = glGetUniformLocation(mParticleProgramID, "cameraToClipMatrix");
   mParticleWorldToCameraMatrixUnif = glGetUniformLocation(mParticleProgramID, "worldToCameraMatrix");
+  mParticleModelToWorldMatrixUnif = glGetUniformLocation(mParticleProgramID, "modelToWorldMatrix");
 
   glm::mat4 cameraToClipMatrix = glm::perspective(45.0f,
                                  mWidth / (GLfloat) mHeight, 0.1f, 10.0f);
+  glm::mat4 modelToWorldMatrix = glm::translate(
+                                   glm::mat4(1.0f),
+                                   glm::vec3(
+                                     -(mSizeXmax - mSizeXmin) / 2.0f,
+                                     -(mSizeYmax - mSizeYmin) / 2.0f,
+                                     -(mSizeZmax - mSizeZmin) / 2.0f));
+
+  mCamSphere.z = -(mSizeZmax - mSizeZmin) * 2.0f;
 
   glUseProgram(mProgramID);
   glUniformMatrix4fv(
     mCameraToClipMatrixUnif,
     1, GL_FALSE,
     glm::value_ptr(cameraToClipMatrix)
+  );
+  glUniformMatrix4fv(
+    mModelToWorldMatrixUnif,
+    1, GL_FALSE,
+    glm::value_ptr(modelToWorldMatrix)
   );
   glUseProgram(0);
 
@@ -224,6 +239,11 @@ CVisual::initParticlesVisual(const size_t numParticles) {
     mParticleCameraToClipMatrixUnif,
     1, GL_FALSE,
     glm::value_ptr(cameraToClipMatrix)
+  );
+  glUniformMatrix4fv(
+    mParticleModelToWorldMatrixUnif,
+    1, GL_FALSE,
+    glm::value_ptr(modelToWorldMatrix)
   );
   glUseProgram(0);
 }

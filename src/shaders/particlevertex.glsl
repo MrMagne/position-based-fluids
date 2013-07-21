@@ -8,24 +8,11 @@ attribute vec4 position;
 
 varying float frag_velocity;
 
-mat4 translate(float x, float y, float z)
-{
-    return mat4(
-        vec4(1.0, 0.0, 0.0, 0.0),
-        vec4(0.0, 1.0, 0.0, 0.0),
-        vec4(0.0, 0.0, 1.0, 0.0),
-        vec4(x,   y,   z,   1.0)
-    );
-}
-
 void main()
 {  
     frag_velocity = position.w;
     
-    mat4 center = translate(-0.3, -0.3-0.02, -0.3);
-
-    vec4 tmpEye = vec4(position.xyz, 1.0);
-    vec4 eye_position = worldToCameraMatrix * center * tmpEye;
+    vec4 eye_position = worldToCameraMatrix * modelToWorldMatrix * vec4(position.xyz, 1.0);
     gl_Position = cameraToClipMatrix * eye_position;
 
     float a = 1.0;

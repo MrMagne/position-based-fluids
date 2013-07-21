@@ -146,11 +146,11 @@ int main() {
     clflags << "-DUSE_LINKEDCELL ";
 #endif // USE_LINKEDCELL
 
-    clflags << "-DSYSTEM_MIN_X=" << parameters.xMin << "f ";
+    clflags << "-DSYSTEM_MIN_X=" << parameters.xMin << ".0f ";
     clflags << "-DSYSTEM_MAX_X=" << parameters.xMax << "f ";
-    clflags << "-DSYSTEM_MIN_Y=" << parameters.yMin << "f ";
+    clflags << "-DSYSTEM_MIN_Y=" << parameters.yMin << ".0f ";
     clflags << "-DSYSTEM_MAX_Y=" << parameters.yMax << "f ";
-    clflags << "-DSYSTEM_MIN_Z=" << parameters.zMin << "f ";
+    clflags << "-DSYSTEM_MIN_Z=" << parameters.zMin << ".0f ";
     clflags << "-DSYSTEM_MAX_Z=" << parameters.zMax << "f ";
     clflags << "-DNUMBER_OF_CELLS_X=" << parameters.xN << " ";
     clflags << "-DNUMBER_OF_CELLS_Y=" << parameters.yN << " ";
