@@ -10,4 +10,4 @@ z_max                 0.5
 x_n                   25
 y_n                   25
 z_n                   25
-restdensity           998200
+restdensity           998200.0

@@ -3,12 +3,12 @@ name = 'dam_coarse'
 h = 1.0
 s = h / 2
 
-min_x = 10
-max_x = 20
-min_y = 10
-max_y = 20
-min_z = 10
-max_z = 20
+min_x = 10.0
+max_x = 20.0
+min_y = 10.0
+max_y = 20.0
+min_z = 10.0
+max_z = 20.0
 width = max_x - min_x
 height = max_y - min_y
 depth = max_z - min_z
@@ -27,8 +27,8 @@ f.write('{}\n'.format(p))
 for x in range(p_x):
     for y in range(p_y):
         for z in range(p_z):
-            f.write("{} {} {} {} {} {} {} {}\n".format(
-                m, s, min_x + x * s, min_y + y * s, min_z + z * s, 0, 0, 0))
+            f.write("{} {} {} {} {} {} {}\n".format(
+                m, min_x + x * s, min_y + y * s, min_z + z * s, 0, 0, 0))
 
 f.close()
 
@@ -45,5 +45,5 @@ f.write("z_max                 {}\n".format(30.0))
 f.write("x_n                   {}\n".format(int(round((30.0-0.0)/h))))
 f.write("y_n                   {}\n".format(int(round((30.0-0.0)/h))))
 f.write("z_n                   {}\n".format(int(round((30.0-0.0)/h))))
-f.write("density               {}\n".format(p / (width * height * depth)))
+f.write("restdensity           {}\n".format(p / (width * height * depth)))
 f.close()

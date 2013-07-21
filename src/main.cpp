@@ -41,7 +41,7 @@ int main() {
   try {
     DataLoader dataLoader;
     // Reading the configuration file
-    string parameters_filename = dataLoader.getPathForScenario("dam_miles.par");
+    string parameters_filename = dataLoader.getPathForScenario("dam_coarse.par");
     cout << parameters_filename << endl;
     ConfigReader configReader;
     ConfigParameters parameters = configReader.read(parameters_filename);
@@ -146,20 +146,21 @@ int main() {
     clflags << "-DUSE_LINKEDCELL ";
 #endif // USE_LINKEDCELL
 
-    clflags << "-DSYSTEM_MIN_X=" << parameters.xMin << ".0f ";
+    clflags << std::showpoint;
+    clflags << "-DSYSTEM_MIN_X=" << parameters.xMin << "f ";
     clflags << "-DSYSTEM_MAX_X=" << parameters.xMax << "f ";
-    clflags << "-DSYSTEM_MIN_Y=" << parameters.yMin << ".0f ";
+    clflags << "-DSYSTEM_MIN_Y=" << parameters.yMin << "f ";
     clflags << "-DSYSTEM_MAX_Y=" << parameters.yMax << "f ";
-    clflags << "-DSYSTEM_MIN_Z=" << parameters.zMin << ".0f ";
+    clflags << "-DSYSTEM_MIN_Z=" << parameters.zMin << "f ";
     clflags << "-DSYSTEM_MAX_Z=" << parameters.zMax << "f ";
-    clflags << "-DNUMBER_OF_CELLS_X=" << parameters.xN << " ";
-    clflags << "-DNUMBER_OF_CELLS_Y=" << parameters.yN << " ";
-    clflags << "-DNUMBER_OF_CELLS_Z=" << parameters.zN << " ";
+    clflags << "-DNUMBER_OF_CELLS_X=" << parameters.xN << "f ";
+    clflags << "-DNUMBER_OF_CELLS_Y=" << parameters.yN << "f ";
+    clflags << "-DNUMBER_OF_CELLS_Z=" << parameters.zN << "f ";
     clflags << "-DCELL_LENGTH_X=" << (parameters.xMax - parameters.xMin) / parameters.xN << "f ";
     clflags << "-DCELL_LENGTH_Y=" << (parameters.yMax - parameters.yMin) / parameters.yN << "f ";
     clflags << "-DCELL_LENGTH_Z=" << (parameters.zMax - parameters.zMin) / parameters.zN << "f ";
     clflags << "-DTIMESTEP=" << parameters.timeStepLength << "f ";
-    clflags << "-DREST_DENSITY=" << parameters.restDensity << ".0f ";
+    clflags << "-DREST_DENSITY=" << parameters.restDensity << "f ";
 
     cl::Program program = clSetup.createProgram(kernelSources, context,
                           device, clflags.str());

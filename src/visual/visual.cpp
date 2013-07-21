@@ -136,23 +136,27 @@ CVisual::initSystemVisual(const cl_float4 sizesMin,
   mSizeZmin = sizesMin.s[2];
   mSizeZmax = sizesMax.s[2];
 
+  float sizeX = (mSizeXmax - mSizeXmin) * 10.0f;
+  float sizeY = (mSizeYmax - mSizeYmin) * 10.0f;
+  float sizeZ = (mSizeZmax - mSizeZmin) * 10.0f;
+
   const GLfloat systemVertices[] = {
-    -2.0f, mSizeYmin, mSizeZmin, 1.0f,
+    -sizeX, mSizeYmin, mSizeZmin, 1.0f,
     0.0f, 0.0f, 1.0f, 0.0f,
-    2.0f, mSizeYmin, mSizeZmin, 1.0f,
+    sizeX, mSizeYmin, mSizeZmin, 1.0f,
     0.0f, 0.0f, 1.0f, 0.0f,
-    2.0f, 2.0f, mSizeZmin, 1.0f,
+    sizeX, sizeY, mSizeZmin, 1.0f,
     0.0f, 0.0f, 1.0f, 0.0f,
-    -2.0f, 2.0f, mSizeZmin, 1.0f,
+    -sizeX, sizeY, mSizeZmin, 1.0f,
     0.0f, 0.0f, 1.0f, 0.0f,
 
-    -2.0f, mSizeYmin, mSizeZmin, 1.0f,
+    -sizeX, mSizeYmin, mSizeZmin, 1.0f,
     0.0f, 1.0f, 0.0f, 0.0f,
-    2.0f, mSizeYmin, mSizeZmin, 1.0f,
+    sizeX, mSizeYmin, mSizeZmin, 1.0f,
     0.0f, 1.0f, 0.0f, 0.0f,
-    2.0f, mSizeYmin, 2.0f, 1.0f,
+    sizeX, mSizeYmin, sizeZ, 1.0f,
     0.0f, 1.0f, 0.0f, 0.0f,
-    -2.0f, mSizeYmin, 2.0f, 1.0f,
+    -sizeX, mSizeYmin, sizeZ, 1.0f,
     0.0f, 1.0f, 0.0f, 0.0f,
   };
 
@@ -211,7 +215,7 @@ CVisual::initParticlesVisual(const size_t numParticles) {
   mParticleModelToWorldMatrixUnif = glGetUniformLocation(mParticleProgramID, "modelToWorldMatrix");
 
   glm::mat4 cameraToClipMatrix = glm::perspective(45.0f,
-                                 mWidth / (GLfloat) mHeight, 0.1f, 10.0f);
+                                 mWidth / (GLfloat) mHeight, 0.1f, 1000.0f);
   glm::mat4 modelToWorldMatrix = glm::translate(
                                    glm::mat4(1.0f),
                                    glm::vec3(
@@ -363,11 +367,11 @@ CVisual::checkInput(bool &generateWaves) {
   }
 
   if (glfwGetKey(mWindow, 'O') == GLFW_PRESS) {
-    mCamSphere.z -= 0.01f;
+    mCamSphere.z -= 1.0f;
   }
 
   if (glfwGetKey(mWindow, 'U') == GLFW_PRESS) {
-    mCamSphere.z += 0.01f;
+    mCamSphere.z += 1.0f;
   }
 
   if (glfwGetKey(mWindow, 'I') == GLFW_PRESS) {

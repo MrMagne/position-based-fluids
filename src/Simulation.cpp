@@ -456,8 +456,8 @@ void
 Simulation::step(void) {
 
 #if defined(USE_DEBUG)
-  double start = 0.0f, end = 0.0f;
-  double istart = 0.0f, iend = 0.0f;
+  // double start = 0.0f, end = 0.0f;
+  // double istart = 0.0f, iend = 0.0f;
 #endif // USE_DEBUG
 
   // start = glfwGetTime();
