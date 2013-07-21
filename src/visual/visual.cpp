@@ -197,25 +197,25 @@ CVisual::initParticlesVisual(const size_t numParticles) {
   mPositionAttrib = glGetAttribLocation(mProgramID, "position");
   mNormalAttrib = glGetAttribLocation(mProgramID, "normal");
   mTexcoordAttrib = glGetAttribLocation(mProgramID, "texcoord");
-  mCameraToClipMatrixUnif = glGetUniformLocation(mProgramID, "p_matrix");
-  mWorldToCameraMatrixUnif = glGetUniformLocation(mProgramID, "mv_matrix");
+  mCameraToClipMatrixUnif = glGetUniformLocation(mProgramID, "cameraToClipMatrix");
+  mWorldToCameraMatrixUnif = glGetUniformLocation(mProgramID, "worldToCameraMatrix");
   mTextureUnif = glGetUniformLocation(mProgramID, "texture");
 
   mParticleProgramID = this->loadShaders(mDataLoader->getPathForShader("particlevertex.glsl"),
                                          mDataLoader->getPathForShader("particlefragment.glsl"));
 
   mParticlePositionAttrib = glGetAttribLocation(mParticleProgramID, "position");
-  mParticleCameraToClipMatrixUnif = glGetUniformLocation(mParticleProgramID, "p_matrix");
-  mParticleWorldToCameraMatrixUnif = glGetUniformLocation(mParticleProgramID, "mv_matrix");
+  mParticleCameraToClipMatrixUnif = glGetUniformLocation(mParticleProgramID, "cameraToClipMatrix");
+  mParticleWorldToCameraMatrixUnif = glGetUniformLocation(mParticleProgramID, "worldToCameraMatrix");
 
-  glm::mat4 projectionMat = glm::perspective(45.0f,
-                            mWidth / (GLfloat) mHeight, 0.1f, 10.0f);
+  glm::mat4 cameraToClipMatrix = glm::perspective(45.0f,
+                                 mWidth / (GLfloat) mHeight, 0.1f, 10.0f);
 
   glUseProgram(mProgramID);
   glUniformMatrix4fv(
     mCameraToClipMatrixUnif,
     1, GL_FALSE,
-    glm::value_ptr(projectionMat)
+    glm::value_ptr(cameraToClipMatrix)
   );
   glUseProgram(0);
 
@@ -223,7 +223,7 @@ CVisual::initParticlesVisual(const size_t numParticles) {
   glUniformMatrix4fv(
     mParticleCameraToClipMatrixUnif,
     1, GL_FALSE,
-    glm::value_ptr(projectionMat)
+    glm::value_ptr(cameraToClipMatrix)
   );
   glUseProgram(0);
 }

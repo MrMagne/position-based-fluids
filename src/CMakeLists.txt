@@ -23,15 +23,52 @@ set(HEADER
   DataLoader.hpp
 )
 
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
 add_subdirectory(io)
 add_subdirectory(visual)
 add_subdirectory(ocl)
 
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(KERNELS
+  "${HESP_SOURCE_DIR}/src/hesp.hpp"
+  "${HESP_SOURCE_DIR}/src/kernels/apply_vorticity_and_viscosity.cl"
+  "${HESP_SOURCE_DIR}/src/kernels/calc_hash.cl"
+  "${HESP_SOURCE_DIR}/src/kernels/compute_delta.cl"
+  "${HESP_SOURCE_DIR}/src/kernels/compute_scaling.cl"
+  "${HESP_SOURCE_DIR}/src/kernels/find_cells.cl"
+  "${HESP_SOURCE_DIR}/src/kernels/init_cells.cl"
+  "${HESP_SOURCE_DIR}/src/kernels/init_cells_old.cl"
+  "${HESP_SOURCE_DIR}/src/kernels/predict_positions.cl"
+  "${HESP_SOURCE_DIR}/src/kernels/radix_histogram.cl"
+  "${HESP_SOURCE_DIR}/src/kernels/radix_paste.cl"
+  "${HESP_SOURCE_DIR}/src/kernels/radix_reorder.cl"
+  "${HESP_SOURCE_DIR}/src/kernels/update_cells.cl"
+  "${HESP_SOURCE_DIR}/src/kernels/update_positions.cl"
+  "${HESP_SOURCE_DIR}/src/kernels/update_predicted.cl"
+  "${HESP_SOURCE_DIR}/src/kernels/update_velocities.cl"
+)
+
+SET(SHADERS
+  "${HESP_SOURCE_DIR}/src/shaders/particlevertex.glsl"
+  "${HESP_SOURCE_DIR}/src/shaders/particlefragment.glsl"
+  "${HESP_SOURCE_DIR}/src/shaders/shadervertex.glsl"
+  "${HESP_SOURCE_DIR}/src/shaders/shaderfragment.glsl"
+)
+
+SET(SCENARIOS
+  "${HESP_SOURCE_DIR}/assets/scenarios/dam_miles.par"
+  "${HESP_SOURCE_DIR}/assets/scenarios/dam_miles.in"
+  "${HESP_SOURCE_DIR}/assets/scenarios/dam_coarse.par"
+  "${HESP_SOURCE_DIR}/assets/scenarios/dam_coarse.in"
+)
+
+SET(TEXTURES
+  "${HESP_SOURCE_DIR}/assets/textures/wall.tga"
+)
 
 # also headers are not necessary for cmake, 
 # include them here so they appear in IDE like Xcode
-add_executable(hesp ${SOURCE} ${HEADER})
+add_executable(hesp ${SOURCE} ${HEADER} ${KERNELS} ${SHADERS} ${SCENARIOS} ${TEXTURES})
 
 if (APPLE)
   target_link_libraries(hesp
@@ -52,62 +89,49 @@ else()
   )
 endif (APPLE)
 
-SET(KERNELS
-  "${HESP_SOURCE_DIR}/src/hesp.hpp"
-  "${HESP_SOURCE_DIR}/src/kernels/apply_vorticity_and_viscosity.cl"
-  "${HESP_SOURCE_DIR}/src/kernels/calc_hash.cl"
-  "${HESP_SOURCE_DIR}/src/kernels/compute_delta.cl"
-  "${HESP_SOURCE_DIR}/src/kernels/compute_scaling.cl"
-  "${HESP_SOURCE_DIR}/src/kernels/find_cells.cl"
-  "${HESP_SOURCE_DIR}/src/kernels/init_cells.cl"
-  "${HESP_SOURCE_DIR}/src/kernels/init_cells_old.cl"
-  "${HESP_SOURCE_DIR}/src/kernels/predict_positions.cl"
-  "${HESP_SOURCE_DIR}/src/kernels/radix_histogram.cl"
-  "${HESP_SOURCE_DIR}/src/kernels/radix_paste.cl"
-  "${HESP_SOURCE_DIR}/src/kernels/radix_reorder.cl"
-  "${HESP_SOURCE_DIR}/src/kernels/update_cells.cl"
-  "${HESP_SOURCE_DIR}/src/kernels/update_positions.cl"
-  "${HESP_SOURCE_DIR}/src/kernels/update_predicted.cl"
-  "${HESP_SOURCE_DIR}/src/kernels/update_velocities.cl"
-)
-
-add_custom_command(TARGET hesp PRE_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-        "${HESP_SOURCE_DIR}/src/kernels"
-        $<TARGET_FILE_DIR:hesp>/data/kernels)
+add_custom_target(copy ALL
+    COMMENT "Copying support files")
 
 foreach(KERNEL ${KERNELS})
-  add_custom_command(TARGET hesp PRE_BUILD
-                     COMMAND ${CMAKE_COMMAND} -E copy
-                     ${KERNEL} 
-                     $<TARGET_FILE_DIR:hesp>/data/kernels)
-endforeach()
+  get_filename_component(FILENAME ${KERNEL} NAME)
+  set(SRC "${KERNEL}")
+  set(DST "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/data/kernels/${FILENAME}")
 
-SET(SCENARIOS
-  "${HESP_SOURCE_DIR}/assets/scenarios/dam_miles.par"
-  "${HESP_SOURCE_DIR}/assets/scenarios/dam_miles.in"
-  "${HESP_SOURCE_DIR}/assets/scenarios/dam_coarse.par"
-  "${HESP_SOURCE_DIR}/assets/scenarios/dam_coarse.in"
-)
+  add_custom_command(
+    TARGET copy
+    COMMAND ${CMAKE_COMMAND} -E copy ${SRC} ${DST}
+    )
+endforeach(KERNEL)
 
-add_custom_command(TARGET hesp PRE_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-        "${HESP_SOURCE_DIR}/assets/scenarios"
-        $<TARGET_FILE_DIR:hesp>/data/scenarios)
+foreach(SHADER ${SHADERS})
+  get_filename_component(FILENAME ${SHADER} NAME)
+  set(SRC "${SHADER}")
+  set(DST "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/data/shaders/${FILENAME}")
+
+  add_custom_command(
+    TARGET copy
+    COMMAND ${CMAKE_COMMAND} -E copy ${SRC} ${DST}
+    )
+endforeach(SHADER)
 
 foreach(SCENARIO ${SCENARIOS})
-  add_custom_command(TARGET hesp PRE_BUILD
-                     COMMAND ${CMAKE_COMMAND} -E copy
-                     ${SCENARIO} 
-                     $<TARGET_FILE_DIR:hesp>/data/scenarios)
-endforeach()
+  get_filename_component(FILENAME ${SCENARIO} NAME)
+  set(SRC "${SCENARIO}")
+  set(DST "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/data/scenarios/${FILENAME}")
 
-add_custom_command(TARGET hesp POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-        "${HESP_SOURCE_DIR}/assets/textures"
-        $<TARGET_FILE_DIR:hesp>/data/textures)
+  add_custom_command(
+    TARGET copy
+    COMMAND ${CMAKE_COMMAND} -E copy ${SRC} ${DST}
+    )
+endforeach(SCENARIO)
 
-add_custom_command(TARGET hesp POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-        "${HESP_SOURCE_DIR}/src/shaders"
-        $<TARGET_FILE_DIR:hesp>/data/shaders)
+foreach(TEXTURE ${TEXTURES})
+  get_filename_component(FILENAME ${TEXTURE} NAME)
+  set(SRC "${TEXTURE}")
+  set(DST "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/data/textures/${FILENAME}")
+
+  add_custom_command(
+    TARGET copy
+    COMMAND ${CMAKE_COMMAND} -E copy ${SRC} ${DST}
+    )
+endforeach(TEXTURE)

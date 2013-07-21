@@ -1,6 +1,9 @@
 #version 120
 
-uniform mat4 p_matrix, mv_matrix;
+uniform mat4 cameraToClipMatrix;
+uniform mat4 worldToCameraMatrix;
+uniform mat4 modelToWorldMatrix;
+
 uniform sampler2D texture;
 
 attribute vec4 position;
@@ -25,11 +28,11 @@ void main()
     mat4 center = translate(-0.3, -0.3-0.02, -0.3-0.02);
 
     vec4 tmpEye = vec4(position.xyz, 1.0);
-    vec4 eye_position = mv_matrix * center * tmpEye;
+    vec4 eye_position = worldToCameraMatrix * center * tmpEye;
 
-    gl_Position = p_matrix * eye_position;
+    gl_Position = cameraToClipMatrix * eye_position;
     frag_position = eye_position.xyz;
-    frag_normal = (mv_matrix * vec4(normal.xyz, 0.0)).xyz;
+    frag_normal = (worldToCameraMatrix * vec4(normal.xyz, 0.0)).xyz;
 
     // TODO: avoid conditional in shaders
     if(normal.y > 0.0) {

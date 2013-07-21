@@ -1,11 +1,12 @@
 #version 120
 
-uniform mat4 p_matrix, mv_matrix;
+uniform mat4 cameraToClipMatrix;
+uniform mat4 worldToCameraMatrix;
+uniform mat4 modelToWorldMatrix;
 
 attribute vec4 position;
 
 varying float frag_velocity;
-varying float frag_pointsize;
 
 mat4 translate(float x, float y, float z)
 {
@@ -24,8 +25,8 @@ void main()
     mat4 center = translate(-0.3, -0.3-0.02, -0.3);
 
     vec4 tmpEye = vec4(position.xyz, 1.0);
-    vec4 eye_position = mv_matrix * center * tmpEye;
-    gl_Position = p_matrix * eye_position;
+    vec4 eye_position = worldToCameraMatrix * center * tmpEye;
+    gl_Position = cameraToClipMatrix * eye_position;
 
     float a = 1.0;
     float b = 0.0;
@@ -34,7 +35,6 @@ void main()
     float size = 10.0;
     float derived_size = size * sqrt(1.0/(a + b * d + c * d * d));
 
-    frag_pointsize = 2.0 / pow(gl_Position.w,2.0);
-    gl_PointSize = frag_pointsize;
+    gl_PointSize = 2.0 / pow(gl_Position.w,2.0);
 }
 
