@@ -30,10 +30,13 @@ __kernel void computeScaling(__global float4 *predicted,
   float gradient_sum_k = 0.0f;
   float3 gradient_sum_k_i = (float3) 0.0f;
 
+  int neighbour_cell[3];
+#pragma unroll 3
   for (int x = -1; x <= 1; ++x) {
+#pragma unroll 3
     for (int y = -1; y <= 1; ++y) {
+#pragma unroll 3
       for (int z = -1; z <= 1; ++z) {
-        int neighbour_cell[3];
 
         neighbour_cell[0] = current_cell[0] + x;
         neighbour_cell[1] = current_cell[1] + y;
