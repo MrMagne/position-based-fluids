@@ -175,9 +175,6 @@ Simulation::init(void) {
   mScalingFactorsBuffer = cl::Buffer(mCLContext, CL_MEM_READ_WRITE,
                                      mBufferSizeScalingFactors);
 
-  mVorticityBuffer = cl::Buffer(mCLContext, CL_MEM_READ_WRITE,
-                                mBufferSizeParticles);
-
 #if !defined(USE_LINKEDCELL)
   // get closest multiple to of items/groups
   if (mNumParticles % (_ITEMS * _GROUPS) == 0) {
@@ -238,7 +235,8 @@ Simulation::updatePositions(void) {
   mKernels["updatePositions"].setArg(0, mPositionsBuffer);
   mKernels["updatePositions"].setArg(1, mPredictedBuffer);
   mKernels["updatePositions"].setArg(2, mVelocitiesBuffer);
-  mKernels["updatePositions"].setArg(3, mNumParticles);
+  mKernels["updatePositions"].setArg(3, mDeltaVelocityBuffer);
+  mKernels["updatePositions"].setArg(4, mNumParticles);
 
   mQueue.enqueueNDRangeKernel(mKernels["updatePositions"], 0,
                               mGlobalRange, mLocalRange);
@@ -249,10 +247,8 @@ Simulation::updateVelocities(void) {
   mKernels["updateVelocities"].setArg(0, mPositionsBuffer);
   mKernels["updateVelocities"].setArg(1, mPredictedBuffer);
   mKernels["updateVelocities"].setArg(2, mVelocitiesBuffer);
-  mKernels["updateVelocities"].setArg(3, mDeltaVelocityBuffer);
-  mKernels["updateVelocities"].setArg(4, mVorticityBuffer);
-  mKernels["updateVelocities"].setArg(5, mTimestepLength);
-  mKernels["updateVelocities"].setArg(6, mNumParticles);
+  mKernels["updateVelocities"].setArg(3, mTimestepLength);
+  mKernels["updateVelocities"].setArg(4, mNumParticles);
 
   mQueue.enqueueNDRangeKernel(mKernels["updateVelocities"], 0,
                               mGlobalRange, mLocalRange);
@@ -263,19 +259,18 @@ Simulation::applyVorticityAndViscosity(void) {
   mKernels["applyVorticityAndViscosity"].setArg(0, mPredictedBuffer);
   mKernels["applyVorticityAndViscosity"].setArg(1, mVelocitiesBuffer);
   mKernels["applyVorticityAndViscosity"].setArg(2, mDeltaVelocityBuffer);
-  mKernels["applyVorticityAndViscosity"].setArg(3, mVorticityBuffer);
 #if defined(USE_LINKEDCELL)
-  mKernels["applyVorticityAndViscosity"].setArg(4, mCellsBuffer);
-  mKernels["applyVorticityAndViscosity"].setArg(5, mParticlesListBuffer);
+  mKernels["applyVorticityAndViscosity"].setArg(3, mCellsBuffer);
+  mKernels["applyVorticityAndViscosity"].setArg(4, mParticlesListBuffer);
 #else
-  mKernels["applyVorticityAndViscosity"].setArg(4, mRadixCellsBuffer);
-  mKernels["applyVorticityAndViscosity"].setArg(5, mFoundCellsBuffer);
+  mKernels["applyVorticityAndViscosity"].setArg(3, mRadixCellsBuffer);
+  mKernels["applyVorticityAndViscosity"].setArg(4, mFoundCellsBuffer);
 #endif // USE_LINKEDCELL
-  mKernels["applyVorticityAndViscosity"].setArg(6, mSystemSizeMin);
-  mKernels["applyVorticityAndViscosity"].setArg(7, mSystemSizeMax);
-  mKernels["applyVorticityAndViscosity"].setArg(8, mCellLength);
-  mKernels["applyVorticityAndViscosity"].setArg(9, mNumberCells);
-  mKernels["applyVorticityAndViscosity"].setArg(10, mNumParticles);
+  mKernels["applyVorticityAndViscosity"].setArg(5, mSystemSizeMin);
+  mKernels["applyVorticityAndViscosity"].setArg(6, mSystemSizeMax);
+  mKernels["applyVorticityAndViscosity"].setArg(7, mCellLength);
+  mKernels["applyVorticityAndViscosity"].setArg(8, mNumberCells);
+  mKernels["applyVorticityAndViscosity"].setArg(9, mNumParticles);
 
   mQueue.enqueueNDRangeKernel(mKernels["applyVorticityAndViscosity"],
                               0, mGlobalRange, mLocalRange);

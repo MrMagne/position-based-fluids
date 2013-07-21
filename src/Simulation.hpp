@@ -157,7 +157,6 @@ private:
   cl::Buffer mScalingFactorsBuffer;
   cl::Buffer mDeltaBuffer;
   cl::Buffer mDeltaVelocityBuffer;
-  cl::Buffer mVorticityBuffer;
 
 #if !defined(USE_LINKEDCELL)
   cl::Buffer mRadixCellsBuffer;
