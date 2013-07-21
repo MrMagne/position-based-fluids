@@ -62,9 +62,9 @@ __kernel void computeDelta(__global float4 *delta,
           if (i != next) {
             float4 r = predicted[i] - predicted[next];
             float r_length_2 = r.x * r.x + r.y * r.y + r.z * r.z;
-            float r_length = sqrt(r_length_2);
 
-            if (r_length > 0.0f && r_length < h) {
+            if (r_length_2 > 0.0f && r_length_2 < h2) {
+              float r_length = sqrt(r_length_2);
               float4 gradient_spiky = -1.0f * r / (r_length)
                                       * gradSpiky_factor
                                       * (h - r_length)
@@ -101,9 +101,9 @@ __kernel void computeDelta(__global float4 *delta,
           if (i != next) {
             float4 r = predicted[i] - predicted[next];
             float r_length_2 = r.x * r.x + r.y * r.y + r.z * r.z;
-            float r_length = sqrt(r_length_2);
 
-            if (r_length > 0.0f && r_length < h) {
+            if (r_length_2 > 0.0f && r_length_2 < h2) {
+              float r_length = sqrt(r_length_2);
               float4 gradient_spiky = -1.0f * r / (r_length)
                                       * gradSpiky_factor
                                       * (h - r_length)
