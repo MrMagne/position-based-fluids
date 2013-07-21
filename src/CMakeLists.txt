@@ -83,25 +83,29 @@ foreach(KERNEL ${KERNELS})
                      $<TARGET_FILE_DIR:hesp>/data/kernels)
 endforeach()
 
-add_custom_command(TARGET hesp POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-        "${HESP_SOURCE_DIR}/assets/textures"
-        $<TARGET_FILE_DIR:hesp>/data/textures)
+SET(SCENARIOS
+  "${HESP_SOURCE_DIR}/assets/scenarios/dam_miles.par"
+  "${HESP_SOURCE_DIR}/assets/scenarios/dam_miles.in"
+  "${HESP_SOURCE_DIR}/assets/scenarios/dam_coarse.par"
+  "${HESP_SOURCE_DIR}/assets/scenarios/dam_coarse.in"
+)
 
-add_custom_command(TARGET hesp POST_BUILD
+add_custom_command(TARGET hesp PRE_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         "${HESP_SOURCE_DIR}/assets/scenarios"
         $<TARGET_FILE_DIR:hesp>/data/scenarios)
 
-add_custom_command(TARGET hesp PRE_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy
-        "${HESP_SOURCE_DIR}/assets/scenarios/dam_miles.par"
-        $<TARGET_FILE_DIR:hesp>/data/scenarios)
+foreach(SCENARIO ${SCENARIOS})
+  add_custom_command(TARGET hesp PRE_BUILD
+                     COMMAND ${CMAKE_COMMAND} -E copy
+                     ${SCENARIO} 
+                     $<TARGET_FILE_DIR:hesp>/data/scenarios)
+endforeach()
 
-add_custom_command(TARGET hesp PRE_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy
-        "${HESP_SOURCE_DIR}/assets/scenarios/dam_miles.par"
-        $<TARGET_FILE_DIR:hesp>/data/scenarios)
+add_custom_command(TARGET hesp POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${HESP_SOURCE_DIR}/assets/textures"
+        $<TARGET_FILE_DIR:hesp>/data/textures)
 
 add_custom_command(TARGET hesp POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
